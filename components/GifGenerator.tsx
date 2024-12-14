@@ -91,9 +91,9 @@ const defaultResolution = isMobile ? 400 : 600;
 
 function reduceColorDepth(data: Uint8ClampedArray) {
   for (let i = 0; i < data.length; i += 4) {
-    data[i] = Math.round(data[i] / 8) * 8;     // R
-    data[i + 1] = Math.round(data[i + 1] / 8) * 8; // G
-    data[i + 2] = Math.round(data[i + 2] / 8) * 8; // B
+    data[i] = Math.round(data[i] / 16) * 16;     // R
+    data[i + 1] = Math.round(data[i + 1] / 16) * 16; // G
+    data[i + 2] = Math.round(data[i + 2] / 16) * 16; // B
   }
 }
 
@@ -267,10 +267,14 @@ export default function GifGenerator() {
         setProgress(Math.round(p * 100));
       });
 
+      const targetFrameCount = 18;
+      const frameSkip = Math.max(1, Math.floor(FRAME_COUNT / targetFrameCount));
+      const frameDelay = Math.max(20, Math.round(BASE_FRAME_DELAY * frameSkip / speed));
+
       const ctx = outputCanvasRef.current?.getContext('2d');
       if (!ctx) return;
 
-      for (let i = 0; i < FRAME_COUNT; i++) {
+      for (let i = 0; i < FRAME_COUNT; i += frameSkip) {
         if (!outputCanvasRef.current) return;
         
         const progress = i / FRAME_COUNT;
@@ -284,9 +288,8 @@ export default function GifGenerator() {
         reduceColorDepth(imageData.data);
         ctx.putImageData(imageData, 0, 0);
         
-        const frameDelay = BASE_FRAME_DELAY / speed;
         gif.addFrame(ctx.canvas, {copy: true, delay: frameDelay});
-        showStatus(`添加帧: ${i + 1}/${FRAME_COUNT}`);
+        showStatus(`添加帧: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`);
         await new Promise(r => setTimeout(r, 10));
       }
 
@@ -325,10 +328,10 @@ export default function GifGenerator() {
     }}>
       <div style={{ margin: '20px 0' }}>
         <input
+          id="idInput"
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && preview()}
           placeholder="输入ID或铭文号"
           style={{
             padding: '8px',
@@ -340,6 +343,7 @@ export default function GifGenerator() {
           }}
         />
         <input
+          id="resolutionInput"
           type="number"
           value={resolution}
           onChange={(e) => setResolution(Number(e.target.value))}
@@ -530,4 +534,32 @@ function drawFrame(
 function easeInOutQuad(t: number): number {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
+
+useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') preview();
+  };
+
+  const idInput = document.getElementById('idInput');
+  idInput?.addEventListener('keypress', handleKeyPress);
+
+  return () => {
+    idInput?.removeEventListener('keypress', handleKeyPress);
+  };
+}, [preview]);
+
+useEffect(() => {
+  const handleResolutionChange = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const newResolution = parseInt(input.value) || 600;
+    setResolution(newResolution);
+  };
+
+  const resolutionInput = document.getElementById('resolutionInput');
+  resolutionInput?.addEventListener('change', handleResolutionChange);
+
+  return () => {
+    resolutionInput?.removeEventListener('change', handleResolutionChange);
+  };
+}, []);
 
