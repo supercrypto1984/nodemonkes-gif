@@ -67,25 +67,56 @@ export default function GifGenerator() {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full flex flex-wrap gap-2 items-center justify-center mb-4">
+    <div style={{
+      textAlign: 'center',
+      background: 'white',
+      padding: '20px',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      maxWidth: '1100px',
+      margin: '0 auto',
+    }}>
+      <div style={{ margin: '20px 0' }}>
         <input
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && preview()}
           placeholder="输入ID或铭文号"
-          className="border border-gray-300 px-2 py-1"
+          style={{
+            padding: '8px',
+            fontSize: '16px',
+            width: '200px',
+            marginRight: '10px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+          }}
         />
         <input
-          type="text"
+          type="number"
           value={resolution}
           onChange={(e) => setResolution(Number(e.target.value))}
-          className="border border-gray-300 px-2 py-1 w-16"
+          style={{
+            padding: '8px',
+            fontSize: '16px',
+            width: '100px',
+            marginRight: '10px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+          }}
         />
         <button
           onClick={preview}
-          className="px-4 py-1 bg-[#4CAF50] text-white hover:bg-[#45a049]"
+          style={{
+            padding: '8px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            background: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            margin: '0 5px',
+          }}
         >
           生成预览
         </button>
@@ -93,7 +124,7 @@ export default function GifGenerator() {
 
       <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
 
-      <div className="w-full flex items-center gap-2 my-4">
+      <div style={{ margin: '10px 0' }}>
         <input
           type="range"
           min={0.1}
@@ -101,7 +132,7 @@ export default function GifGenerator() {
           step={0.1}
           value={speed}
           onChange={(e) => setSpeed(Number(e.target.value))}
-          className="flex-1"
+          style={{ width: '200px', marginRight: '10px' }}
         />
         <span>{speed.toFixed(1)}x</span>
       </div>
@@ -109,7 +140,16 @@ export default function GifGenerator() {
       <button
         onClick={() => {}}
         disabled={isGenerating || !images.upper || !images.lower}
-        className="px-4 py-1 bg-[#2196F3] text-white hover:bg-[#1976D2] disabled:bg-gray-300 disabled:cursor-not-allowed mb-4"
+        style={{
+          marginTop: '10px',
+          padding: '8px 20px',
+          fontSize: '16px',
+          cursor: 'pointer',
+          background: '#2196F3',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+        }}
       >
         保存GIF
       </button>
@@ -123,16 +163,34 @@ export default function GifGenerator() {
       />
 
       {status && (
-        <div className="mt-4 w-full py-2 px-4 bg-[#E8F5E9] text-[#2E7D32] text-center">
+        <div style={{
+          margin: '10px 0',
+          padding: '10px',
+          borderRadius: '4px',
+          textAlign: 'center',
+          background: '#e8f5e9',
+          color: '#2e7d32',
+        }}>
           {status}
         </div>
       )}
 
       {isGenerating && (
-        <div className="w-full mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div style={{
+          width: '80%',
+          margin: '10px auto',
+          height: '20px',
+          background: '#f0f0f0',
+          borderRadius: '10px',
+          overflow: 'hidden',
+        }}>
           <div 
-            className="h-full bg-[#4CAF50] transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: '#4CAF50',
+              transition: 'width 0.3s',
+            }}
           />
         </div>
       )}
