@@ -97,6 +97,9 @@ function reduceColorDepth(data: Uint8ClampedArray) {
   }
 }
 
+const FRAME_COUNT = 36; // Increased from 24 to 36 for smoother animation
+const BASE_FRAME_DELAY = 1000 / 30; // Aiming for 30 fps
+
 export default function GifGenerator() {
   const [id, setId] = useState('')
   const [resolution, setResolution] = useState(defaultResolution)
@@ -264,29 +267,26 @@ export default function GifGenerator() {
         setProgress(Math.round(p * 100));
       });
 
-      const targetFrameCount = 18;
-      const frameSkip = Math.max(1, Math.floor(24 / targetFrameCount));
-      const frameDelay = Math.max(20, Math.round(50 * frameSkip / speed));
-
       const ctx = outputCanvasRef.current?.getContext('2d');
       if (!ctx) return;
 
-      for (let i = 0; i < 24; i += frameSkip) {
+      for (let i = 0; i < FRAME_COUNT; i++) {
         if (!outputCanvasRef.current) return;
         
+        const progress = i / FRAME_COUNT;
         drawFrame(ctx, 
           await loadImage(images.upper), 
           await loadImage(images.lower), 
-          i, resolution, bgColor
+          progress, resolution, bgColor
         );
         
         const imageData = ctx.getImageData(0, 0, resolution, resolution);
         reduceColorDepth(imageData.data);
         ctx.putImageData(imageData, 0, 0);
         
-        const optimizedDelay = Math.round(frameDelay / speed);
-        gif.addFrame(ctx.canvas, {copy: true, delay: optimizedDelay});
-        showStatus(`添加帧: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`);
+        const frameDelay = BASE_FRAME_DELAY / speed;
+        gif.addFrame(ctx.canvas, {copy: true, delay: frameDelay});
+        showStatus(`添加帧: ${i + 1}/${FRAME_COUNT}`);
         await new Promise(r => setTimeout(r, 10));
       }
 
@@ -468,13 +468,11 @@ function drawFrame(
   ctx: CanvasRenderingContext2D,
   upperImg: HTMLImageElement,
   lowerImg: HTMLImageElement,
-  frameIndex: number,
+  progress: number,
   size: number,
   bgColor: string
 ) {
   const PARAMS = {
-    frameCount: 24,
-    frameDelay: 50,
     rotationRange: 0.045,
     pressDownStrength: 50,
     insertionStrength: 30,
@@ -487,19 +485,21 @@ function drawFrame(
   ctx.fillStyle = bgColor || '#ffffff'
   ctx.fillRect(0, 0, size, size)
 
-  const progress = frameIndex / PARAMS.frameCount * Math.PI * 2
-  const rotation = Math.sin(progress) * PARAMS.rotationRange
+  const rotation = Math.sin(progress * Math.PI * 2) * PARAMS.rotationRange
   const isRaising = rotation < 0
 
-  const pressDownPhase = Math.max(0, Math.sin(progress))
+  const pressDownPhase = Math.max(0, Math.sin(progress * Math.PI * 2))
   const pressDownOffset = pressDownPhase * PARAMS.pressDownStrength
   const insertionOffset = pressDownPhase * PARAMS.insertionStrength
   const insertionRotation = pressDownPhase * PARAMS.insertionAngle
   const compressionFactor = pressDownPhase * PARAMS.squashStrength
 
+  // Smooth interpolation for compression
+  const smoothCompression = easeInOutQuad(compressionFactor)
+
   ctx.save()
-  const scaleY = 1 - compressionFactor
-  const scaleX = 1 + (compressionFactor * 0.2)
+  const scaleY = 1 - smoothCompression
+  const scaleX = 1 + (smoothCompression * 0.2)
 
   ctx.translate(size/2, size)
   ctx.scale(scaleX, scaleY)
@@ -524,5 +524,10 @@ function drawFrame(
     ctx.drawImage(upperImg, 0, pressDownOffset + insertionOffset, size, size)
   }
   ctx.restore()
+}
+
+// Easing function for smoother animation
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
 
