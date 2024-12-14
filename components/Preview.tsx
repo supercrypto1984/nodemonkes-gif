@@ -111,15 +111,16 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
   }, [canvasRef, images, bgColor, resolution, speed])
 
   return (
-    <div className="preview relative aspect-square w-full max-w-[600px] mx-auto bg-white rounded-lg overflow-hidden border-2 border-dashed border-gray-200">
+    <div className="preview-area border-t border-gray-200 mt-4">
       <canvas 
         ref={canvasRef} 
         width={resolution} 
         height={resolution}
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        className="mx-auto"
+        style={{ maxWidth: '100%', height: 'auto' }}
       />
       {!images.upper && !images.lower && (
-        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+        <div className="text-center py-40 text-gray-400">
           预览区域
         </div>
       )}
@@ -136,14 +137,14 @@ function drawFrame(
   bgColor: string
 ) {
   ctx.clearRect(0, 0, size, size)
-  
+
   ctx.fillStyle = bgColor || '#ffffff'
   ctx.fillRect(0, 0, size, size)
-  
+
   const progress = frameIndex / PARAMS.frameCount * Math.PI * 2
   const rotation = Math.sin(progress) * PARAMS.rotationRange
   const isRaising = rotation < 0
-  
+
   const pressDownPhase = Math.max(0, Math.sin(progress))
   const pressDownOffset = pressDownPhase * PARAMS.pressDownStrength
   const insertionOffset = pressDownPhase * PARAMS.insertionStrength
@@ -154,7 +155,7 @@ function drawFrame(
   ctx.save()
   const scaleY = 1 - compressionFactor
   const scaleX = 1 + (compressionFactor * 0.2)
-  
+
   ctx.translate(size/2, size)
   ctx.scale(scaleX, scaleY)
   ctx.translate(-size/2, -size)
