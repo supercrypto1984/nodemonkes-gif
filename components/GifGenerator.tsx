@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, MutableRefObject } from 'react'
 import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
-import { GIF } from 'gif.js'
+import GIF from 'gif.js'
+const GIFConstructor = GIF as any;
 
 interface Metadata {
   id: number;
@@ -242,7 +243,7 @@ export default function GifGenerator() {
         { type: 'application/javascript' })
       const workerUrl = URL.createObjectURL(workerBlob)
 
-      const gif = new GIF({
+      const gif = new GIFConstructor({
         workers: 2,
         quality: 10,
         width: resolution,
