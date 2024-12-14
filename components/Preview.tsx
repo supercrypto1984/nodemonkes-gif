@@ -58,8 +58,18 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
   }, [canvasRef, images, bgColor, resolution, speed])
 
   return (
-    <div className="w-full aspect-square bg-white border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
-      <canvas ref={canvasRef} width={resolution} height={resolution} />
+    <div className="relative aspect-square w-full bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200">
+      <canvas 
+        ref={canvasRef} 
+        width={resolution} 
+        height={resolution}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      />
+      {!images.upper && !images.lower && (
+        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+          预览区域
+        </div>
+      )}
     </div>
   )
 }
