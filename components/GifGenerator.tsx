@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
-import { Card, CardContent } from '../components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Slider } from '../components/ui/slider'
 import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
@@ -56,13 +56,6 @@ export default function GifGenerator() {
         workerScript: '/nodemonkes-gif/gif.worker.js'
       })
 
-      // 这里应该添加帧到GIF
-      // 例如：
-      // for (let i = 0; i < frameCount; i++) {
-      //   const frame = generateFrame(i)
-      //   gif.addFrame(frame, { delay: 100 })
-      // }
-
       gif.on('finished', (blob) => {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -84,44 +77,83 @@ export default function GifGenerator() {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardContent className="p-6">
-        <div className="flex flex-col space-y-4">
-          <div className="flex space-x-2">
-            <Input
-              type="text"
-              placeholder="输入ID或铭文号"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="分辨率"
-              value={resolution}
-              onChange={(e) => setResolution(Number(e.target.value))}
-              min={100}
-              max={1200}
-              step={100}
-            />
-            <Button onClick={preview}>生成预览</Button>
-          </div>
-          <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
-          <div className="flex items-center space-x-2">
-            <span>速度: {speed.toFixed(1)}x</span>
-            <Slider
-              value={[speed]}
-              onValueChange={(value) => setSpeed(value[0])}
-              min={1}
-              max={20}
-              step={0.1}
-            />
-          </div>
-          <Button onClick={generateGIF} disabled={isGenerating || !images.upper || !images.lower}>
-            {isGenerating ? '生成中...' : '保存GIF'}
-          </Button>
-          <Preview canvasRef={canvasRef} images={images} bgColor={bgColor} resolution={resolution} speed={speed} />
-          {status && <p className="text-center">{status}</p>}
+    <Card className="w-full max-w-3xl mx-auto bg-white shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center">GIF生成器</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Input
+            type="text"
+            placeholder="输入ID或铭文号"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            className="md:col-span-2"
+          />
+          <Input
+            type="number"
+            placeholder="分辨率"
+            value={resolution}
+            onChange={(e) => setResolution(Number(e.target.value))}
+            min={100}
+            max={1200}
+            step={100}
+            className="md:col-span-1"
+          />
         </div>
+        
+        <div className="flex justify-end">
+          <Button 
+            onClick={preview}
+            className="w-full md:w-auto"
+            variant="default"
+          >
+            生成预览
+          </Button>
+        </div>
+
+        <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">速度: {speed.toFixed(1)}x</span>
+          </div>
+          <Slider
+            value={[speed]}
+            onValueChange={(value) => setSpeed(value[0])}
+            min={0.1}
+            max={5}
+            step={0.1}
+            className="w-full"
+          />
+        </div>
+
+        <Button 
+          onClick={generateGIF} 
+          disabled={isGenerating || !images.upper || !images.lower}
+          className="w-full"
+          variant="default"
+        >
+          {isGenerating ? '生成中...' : '保存GIF'}
+        </Button>
+
+        <Preview 
+          canvasRef={canvasRef} 
+          images={images} 
+          bgColor={bgColor} 
+          resolution={resolution} 
+          speed={speed} 
+        />
+
+        {status && (
+          <div className={`text-center p-2 rounded-md ${
+            status.includes('失败') ? 'bg-red-100 text-red-700' : 
+            status.includes('完成') ? 'bg-green-100 text-green-700' : 
+            'bg-blue-100 text-blue-700'
+          }`}>
+            {status}
+          </div>
+        )}
       </CardContent>
     </Card>
   )
