@@ -32,13 +32,10 @@ export default function GifGenerator() {
 
   useEffect(() => {
     loadMetadata()
-    // Create output canvas for GIF generation
     if (!outputCanvasRef.current) {
-      const canvas = document.createElement('canvas')
-      canvas.width = resolution
-      canvas.height = resolution
-      outputCanvasRef.current = canvas
-    } else {
+      outputCanvasRef.current = document.createElement('canvas')
+    }
+    if (outputCanvasRef.current) {
       outputCanvasRef.current.width = resolution
       outputCanvasRef.current.height = resolution
     }
