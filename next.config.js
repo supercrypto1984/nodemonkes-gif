@@ -3,15 +3,8 @@ const nextConfig = {
   output: 'export',
   images: {
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'nodemonkes.4everland.store',
-        port: '',
-        pathname: '/**',
-      },
-    ],
   },
+  basePath: '/nodemonkes-gif',
   assetPrefix: '/nodemonkes-gif/',
 }
 
