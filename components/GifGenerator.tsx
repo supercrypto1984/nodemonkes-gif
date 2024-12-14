@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, MutableRefObject } from 'react'
 import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
 import { GIF } from 'gif.js'
@@ -28,17 +28,20 @@ export default function GifGenerator() {
   const [showColorPicker, setShowColorPicker] = useState(false)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const outputCanvasRef = useRef<HTMLCanvasElement>(null)
+  const outputCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
     loadMetadata()
+  }, [])
+
+  useEffect(() => {
+    // Create or update output canvas
     if (!outputCanvasRef.current) {
-      outputCanvasRef.current = document.createElement('canvas')
+      const canvas = document.createElement('canvas')
+      outputCanvasRef.current = canvas
     }
-    if (outputCanvasRef.current) {
-      outputCanvasRef.current.width = resolution
-      outputCanvasRef.current.height = resolution
-    }
+    outputCanvasRef.current.width = resolution
+    outputCanvasRef.current.height = resolution
   }, [resolution])
 
   const loadMetadata = async () => {
