@@ -476,4 +476,3 @@ function drawFrame(
   }
   ctx.restore()
 }
-
