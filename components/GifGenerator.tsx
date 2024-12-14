@@ -27,7 +27,6 @@ export default function GifGenerator() {
 
     setStatus('加载图片中...')
     try {
-      // For now, we'll just set placeholder URLs
       setImages({
         upper: `https://nodemonkes.4everland.store/upperbody/${id}.png`,
         lower: `https://nodemonkes.4everland.store/lowerbody/${id}.png`
