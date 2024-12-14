@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useRef } from 'react'
 
 interface PreviewProps {
@@ -8,8 +10,22 @@ interface PreviewProps {
   speed: number
 }
 
+const PARAMS = {
+  frameCount: 24,
+  frameDelay: 50,
+  rotationRange: 0.045,
+  pressDownStrength: 50,
+  insertionStrength: 30,
+  insertionAngle: 0.045,
+  squashStrength: 0.12
+}
+
 export default function Preview({ canvasRef, images, bgColor, resolution, speed }: PreviewProps) {
   const animationRef = useRef<number>()
+  const upperImgRef = useRef<HTMLImageElement | null>(null)
+  const lowerImgRef = useRef<HTMLImageElement | null>(null)
+  const frameRef = useRef(0)
+  const lastTimeRef = useRef(0)
 
   useEffect(() => {
     if (!canvasRef.current || !images.upper || !images.lower) {
@@ -17,47 +33,75 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
     }
 
     const ctx = canvasRef.current.getContext('2d')
-    if (!ctx) {
-      return
-    }
+    if (!ctx) return
 
-    const upperImg = new Image()
-    const lowerImg = new Image()
-    
+    // Set canvas size
+    canvasRef.current.width = resolution
+    canvasRef.current.height = resolution
+
     let imagesLoaded = 0
     const totalImages = 2
 
     const onImageLoad = () => {
       imagesLoaded++
       if (imagesLoaded === totalImages) {
-        let lastTime = 0
-        let frame = 0
-
-        const animate = (currentTime: number) => {
-          if (!lastTime) lastTime = currentTime
-          const deltaTime = currentTime - lastTime
-          
-          if (deltaTime >= 50 / speed) {
-            drawFrame(ctx, upperImg, lowerImg, frame, resolution, bgColor)
-            frame = (frame + 1) % 24
-            lastTime = currentTime
-          }
-          
-          animationRef.current = requestAnimationFrame(animate)
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current)
         }
-
-        animate(performance.now())
+        frameRef.current = 0
+        lastTimeRef.current = 0
+        animate()
       }
     }
 
+    // Load upper image
+    const upperImg = new Image()
+    upperImg.crossOrigin = 'anonymous'
     upperImg.onload = onImageLoad
-    lowerImg.onload = onImageLoad
-    
     upperImg.onerror = () => console.error('Failed to load upper body image')
-    lowerImg.onerror = () => console.error('Failed to load lower body image')
-
     upperImg.src = images.upper
+    upperImgRef.current = upperImg
+
+    // Load lower image
+    const lowerImg = new Image()
+    lowerImg.crossOrigin = 'anonymous'
+    lowerImg.onload = onImageLoad
+    lowerImg.onerror = () => console.error('Failed to load lower body image')
     lowerImg.src = images.lower
+    lowerImgRef.current = lowerImg
+
+    function animate(currentTime?: number) {
+      if (!currentTime) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
+
+      if (!lastTimeRef.current) {
+        lastTimeRef.current = currentTime
+      }
+
+      const deltaTime = currentTime - lastTimeRef.current
+      
+      if (deltaTime >= PARAMS.frameDelay / speed) {
+        const ctx = canvasRef.current?.getContext('2d')
+        if (ctx && upperImgRef.current && lowerImgRef.current) {
+          drawFrame(
+            ctx,
+            upperImgRef.current,
+            lowerImgRef.current,
+            frameRef.current,
+            resolution,
+            bgColor
+          )
+          frameRef.current = (frameRef.current + 1) % PARAMS.frameCount
+          lastTimeRef.current = currentTime
+        }
+      }
+      
+      animationRef.current = requestAnimationFrame(animate)
+    }
+
+    animate()
 
     return () => {
       if (animationRef.current) {
@@ -67,7 +111,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
   }, [canvasRef, images, bgColor, resolution, speed])
 
   return (
-    <div className="relative aspect-square w-full bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200">
+    <div className="preview relative aspect-square w-full max-w-[600px] mx-auto bg-white rounded-lg overflow-hidden border-2 border-dashed border-gray-200">
       <canvas 
         ref={canvasRef} 
         width={resolution} 
@@ -83,19 +127,17 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
   )
 }
 
-function drawFrame(ctx: CanvasRenderingContext2D, upperImg: HTMLImageElement, lowerImg: HTMLImageElement, frameIndex: number, size: number, bgColor: string) {
-  const PARAMS = {
-    frameCount: 24,
-    rotationRange: 0.045,
-    pressDownStrength: 50,
-    insertionStrength: 30,
-    insertionAngle: 0.045,
-    squashStrength: 0.12
-  };
-
+function drawFrame(
+  ctx: CanvasRenderingContext2D,
+  upperImg: HTMLImageElement,
+  lowerImg: HTMLImageElement,
+  frameIndex: number,
+  size: number,
+  bgColor: string
+) {
   ctx.clearRect(0, 0, size, size)
   
-  ctx.fillStyle = bgColor
+  ctx.fillStyle = bgColor || '#ffffff'
   ctx.fillRect(0, 0, size, size)
   
   const progress = frameIndex / PARAMS.frameCount * Math.PI * 2
@@ -108,6 +150,7 @@ function drawFrame(ctx: CanvasRenderingContext2D, upperImg: HTMLImageElement, lo
   const insertionRotation = pressDownPhase * PARAMS.insertionAngle
   const compressionFactor = pressDownPhase * PARAMS.squashStrength
 
+  // Draw lower body with compression
   ctx.save()
   const scaleY = 1 - compressionFactor
   const scaleX = 1 + (compressionFactor * 0.2)
@@ -118,6 +161,7 @@ function drawFrame(ctx: CanvasRenderingContext2D, upperImg: HTMLImageElement, lo
   ctx.drawImage(lowerImg, 0, pressDownOffset, size, size)
   ctx.restore()
 
+  // Draw upper body with rotation
   ctx.save()
   if (isRaising) {
     const raisePivotX = Math.floor(size * 3 / 7)
