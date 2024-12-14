@@ -67,57 +67,52 @@ export default function GifGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="p-4">
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && preview()}
-            placeholder="输入ID或铭文号"
-            className="px-2 py-1 border border-gray-300"
-          />
-          <input
-            type="number"
-            value={resolution}
-            onChange={(e) => setResolution(Number(e.target.value))}
-            min={100}
-            max={1200}
-            step={100}
-            className="w-16 px-2 py-1 border border-gray-300"
-          />
-          <button
-            onClick={preview}
-            className="px-4 py-1 bg-gray-200 hover:bg-gray-300"
-          >
-            生成预览
-          </button>
-        </div>
-
-        <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
-
-        <div className="flex items-center gap-2 my-2">
-          <input
-            type="range"
-            min={0.1}
-            max={5}
-            step={0.1}
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="flex-1"
-          />
-          <span>{speed.toFixed(1)}x</span>
-        </div>
-
+    <div className="flex flex-col items-center">
+      <div className="w-full flex flex-wrap gap-2 items-center justify-center mb-4">
+        <input
+          type="text"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && preview()}
+          placeholder="输入ID或铭文号"
+          className="border border-gray-300 px-2 py-1"
+        />
+        <input
+          type="text"
+          value={resolution}
+          onChange={(e) => setResolution(Number(e.target.value))}
+          className="border border-gray-300 px-2 py-1 w-16"
+        />
         <button
-          onClick={() => {}}
-          disabled={isGenerating || !images.upper || !images.lower}
-          className="px-4 py-1 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+          onClick={preview}
+          className="px-4 py-1 bg-[#4CAF50] text-white hover:bg-[#45a049]"
         >
-          保存GIF
+          生成预览
         </button>
       </div>
+
+      <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
+
+      <div className="w-full flex items-center gap-2 my-4">
+        <input
+          type="range"
+          min={0.1}
+          max={5}
+          step={0.1}
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          className="flex-1"
+        />
+        <span>{speed.toFixed(1)}x</span>
+      </div>
+
+      <button
+        onClick={() => {}}
+        disabled={isGenerating || !images.upper || !images.lower}
+        className="px-4 py-1 bg-[#2196F3] text-white hover:bg-[#1976D2] disabled:bg-gray-300 disabled:cursor-not-allowed mb-4"
+      >
+        保存GIF
+      </button>
 
       <Preview 
         canvasRef={canvasRef}
@@ -128,15 +123,15 @@ export default function GifGenerator() {
       />
 
       {status && (
-        <div className="px-4 py-2 text-sm text-gray-600">
+        <div className="mt-4 w-full py-2 px-4 bg-[#E8F5E9] text-[#2E7D32] text-center">
           {status}
         </div>
       )}
 
       {isGenerating && (
-        <div className="w-full h-1 bg-gray-200">
+        <div className="w-full mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-blue-500 transition-all duration-300"
+            className="h-full bg-[#4CAF50] transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
