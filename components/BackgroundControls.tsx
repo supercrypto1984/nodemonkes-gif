@@ -34,4 +34,3 @@ export default function BackgroundControls({ bgColor, setBgColor }: BackgroundCo
     </div>
   )
 }
-
