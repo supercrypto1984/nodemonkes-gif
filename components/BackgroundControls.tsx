@@ -8,15 +8,29 @@ interface BackgroundControlsProps {
 
 export default function BackgroundControls({ bgColor, setBgColor }: BackgroundControlsProps) {
   return (
-    <div className="flex space-x-2">
-      <Button onClick={() => setBgColor('#ffffff')}>无背景</Button>
-      <Button onClick={() => setBgColor('auto')}>自动背景</Button>
-      <Input
-        type="color"
-        value={bgColor}
-        onChange={(e) => setBgColor(e.target.value)}
-        className="w-12 h-10 p-1"
-      />
+    <div className="flex flex-wrap gap-3">
+      <Button 
+        onClick={() => setBgColor('#ffffff')}
+        variant="outline"
+        className="flex-1 min-w-[120px]"
+      >
+        无背景
+      </Button>
+      <Button 
+        onClick={() => setBgColor('auto')}
+        variant="outline"
+        className="flex-1 min-w-[120px]"
+      >
+        自动背景
+      </Button>
+      <div className="relative flex-1 min-w-[120px]">
+        <Input
+          type="color"
+          value={bgColor}
+          onChange={(e) => setBgColor(e.target.value)}
+          className="w-full h-10 cursor-pointer"
+        />
+      </div>
     </div>
   )
 }
