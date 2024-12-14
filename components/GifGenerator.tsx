@@ -4,6 +4,15 @@ import { useState, useRef, useEffect } from 'react'
 import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
 
+interface Metadata {
+  id: number
+  inscription: number
+  attributes: {
+    Body: string
+    [key: string]: string
+  }
+}
+
 export default function GifGenerator() {
   const [id, setId] = useState('')
   const [resolution, setResolution] = useState(600)
@@ -13,7 +22,7 @@ export default function GifGenerator() {
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
   const [images, setImages] = useState<{ upper: string | null, lower: string | null }>({ upper: null, lower: null })
-  const [metadata, setMetadata] = useState<any[]>([])
+  const [metadata, setMetadata] = useState<Metadata[]>([])
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -46,7 +55,7 @@ export default function GifGenerator() {
         lower: `https://nodemonkes.4everland.store/lowerbody/${id}.png`
       })
       
-      const metadata = metadata.find(item => item.id === parseInt(id))
+      const metadata = metadata.find((item: Metadata) => item.id === parseInt(id))
       if (metadata) {
         setStatus(`预览就绪 (ID: ${id}, 铭文号: ${metadata.inscription}, Body: ${metadata.attributes.Body})`)
       } else {
