@@ -1,0 +1,45 @@
+export const PARAMS = {
+  frameCount: 24,
+  frameDelay: 50,
+  rotationRange: 0.045,
+  pressDownStrength: 50,
+  insertionStrength: 30,
+  insertionAngle: 0.045,
+  squashStrength: 0.12
+}
+
+export const BODY_COLORS = {
+  albino: "#BDADAD",
+  alien: "#04CFE7",
+  beak: "#F8AC00",
+  binary: "#010101",
+  boned: "#000000",
+  bot: "#484848",
+  brown: "#310000",
+  dark: "#482510",
+  deathbot: "#282831",
+  dos: "#0002A5",
+  gold: "#FFAA01",
+  green: "#002205",
+  grey: "#232A30",
+  hyena: "#BA8837",
+  ion: "#060F26",
+  light: "#B7844F",
+  medium: "#945321",
+  mempool: "#BE0B3A",
+  moon: "#3501BB",
+  patriot: "#0D0060",
+  pepe: "#127602",
+  pink: "#E944CE",
+  purple: "#38034A",
+  rainbow: "#009DFF",
+  red: "#630001",
+  safemode: "#000DFF",
+  striped: "#110654",
+  underlord: "#9C0901",
+  vhs: "#0600FF",
+  white: "#c7bcb6",
+  wrapped: "#FFFFFF",
+  zombie: "#104119"
+}
+
