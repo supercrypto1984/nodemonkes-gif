@@ -20,9 +20,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
       
         upperImg.onload = () => {
           lowerImg.onload = () => {
-            // 两张图片都加载完成后，开始动画
             const animate = () => {
-              // 动画逻辑（保持原有的占位符逻辑）
               ctx.fillStyle = bgColor
               ctx.fillRect(0, 0, resolution, resolution)
               ctx.drawImage(upperImg, 0, 0, resolution, resolution)
