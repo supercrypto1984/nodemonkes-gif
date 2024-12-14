@@ -111,7 +111,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
   }, [canvasRef, images, bgColor, resolution, speed])
 
   return (
-    <div className="preview-area border-t border-gray-200 mt-4">
+    <div className="w-full max-w-2xl mx-auto border-2 border-dashed border-gray-200 rounded p-4">
       <canvas 
         ref={canvasRef} 
         width={resolution} 
@@ -120,7 +120,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
         style={{ maxWidth: '100%', height: 'auto' }}
       />
       {!images.upper && !images.lower && (
-        <div className="text-center py-40 text-gray-400">
+        <div className="text-center py-8 text-gray-500">
           预览区域
         </div>
       )}
