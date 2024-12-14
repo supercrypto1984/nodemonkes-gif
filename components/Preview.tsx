@@ -10,21 +10,14 @@ interface PreviewProps {
   speed: number
 }
 
-const PARAMS = {
-  frameCount: 24,
-  frameDelay: 50,
-  rotationRange: 0.045,
-  pressDownStrength: 50,
-  insertionStrength: 30,
-  insertionAngle: 0.045,
-  squashStrength: 0.12
-}
+const FRAME_COUNT = 36;
+const BASE_FRAME_DELAY = 1000 / 30;
 
 export default function Preview({ canvasRef, images, bgColor, resolution, speed }: PreviewProps) {
   const animationRef = useRef<number>()
   const upperImgRef = useRef<HTMLImageElement | null>(null)
   const lowerImgRef = useRef<HTMLImageElement | null>(null)
-  const frameRef = useRef(0)
+  const progressRef = useRef(0)
   const lastTimeRef = useRef(0)
 
   useEffect(() => {
@@ -48,7 +41,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
         if (animationRef.current) {
           cancelAnimationFrame(animationRef.current)
         }
-        frameRef.current = 0
+        progressRef.current = 0
         lastTimeRef.current = 0
         animate()
       }
@@ -81,19 +74,20 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
       }
 
       const deltaTime = currentTime - lastTimeRef.current
+      const frameDelay = BASE_FRAME_DELAY / speed
       
-      if (deltaTime >= PARAMS.frameDelay / speed) {
+      if (deltaTime >= frameDelay) {
         const ctx = canvasRef.current?.getContext('2d')
         if (ctx && upperImgRef.current && lowerImgRef.current) {
           drawFrame(
             ctx,
             upperImgRef.current,
             lowerImgRef.current,
-            frameRef.current,
+            progressRef.current,
             resolution,
             bgColor
           )
-          frameRef.current = (frameRef.current + 1) % PARAMS.frameCount
+          progressRef.current = (progressRef.current + 1 / FRAME_COUNT) % 1
           lastTimeRef.current = currentTime
         }
       }
@@ -145,29 +139,38 @@ function drawFrame(
   ctx: CanvasRenderingContext2D,
   upperImg: HTMLImageElement,
   lowerImg: HTMLImageElement,
-  frameIndex: number,
+  progress: number,
   size: number,
   bgColor: string
 ) {
+  const PARAMS = {
+    rotationRange: 0.045,
+    pressDownStrength: 50,
+    insertionStrength: 30,
+    insertionAngle: 0.045,
+    squashStrength: 0.12
+  }
+
   ctx.clearRect(0, 0, size, size)
 
   ctx.fillStyle = bgColor || '#ffffff'
   ctx.fillRect(0, 0, size, size)
 
-  const progress = frameIndex / PARAMS.frameCount * Math.PI * 2
-  const rotation = Math.sin(progress) * PARAMS.rotationRange
+  const rotation = Math.sin(progress * Math.PI * 2) * PARAMS.rotationRange
   const isRaising = rotation < 0
 
-  const pressDownPhase = Math.max(0, Math.sin(progress))
+  const pressDownPhase = Math.max(0, Math.sin(progress * Math.PI * 2))
   const pressDownOffset = pressDownPhase * PARAMS.pressDownStrength
   const insertionOffset = pressDownPhase * PARAMS.insertionStrength
   const insertionRotation = pressDownPhase * PARAMS.insertionAngle
   const compressionFactor = pressDownPhase * PARAMS.squashStrength
 
-  // Draw lower body with compression
+  // Smooth interpolation for compression
+  const smoothCompression = easeInOutQuad(compressionFactor)
+
   ctx.save()
-  const scaleY = 1 - compressionFactor
-  const scaleX = 1 + (compressionFactor * 0.2)
+  const scaleY = 1 - smoothCompression
+  const scaleX = 1 + (smoothCompression * 0.2)
 
   ctx.translate(size/2, size)
   ctx.scale(scaleX, scaleY)
@@ -175,7 +178,6 @@ function drawFrame(
   ctx.drawImage(lowerImg, 0, pressDownOffset, size, size)
   ctx.restore()
 
-  // Draw upper body with rotation
   ctx.save()
   if (isRaising) {
     const raisePivotX = Math.floor(size * 3 / 7)
@@ -193,5 +195,10 @@ function drawFrame(
     ctx.drawImage(upperImg, 0, pressDownOffset + insertionOffset, size, size)
   }
   ctx.restore()
+}
+
+// Easing function for smoother animation
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
 
