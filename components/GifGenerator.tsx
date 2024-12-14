@@ -255,7 +255,7 @@ export default function GifGenerator() {
         repeat: 0
       })
 
-      gif.on('progress', p => {
+      gif.on('progress', (p: number) => {
         setProgress(Math.round(p * 100))
       })
 
