@@ -67,16 +67,16 @@ export default function GifGenerator() {
   }
 
   return (
-    <div className="container max-w-[1100px] mx-auto bg-white p-5 rounded-lg shadow">
-      <div className="controls space-y-4">
-        <div className="flex gap-2">
+    <div className="min-h-screen bg-white">
+      <div className="p-4">
+        <div className="flex gap-2 mb-2">
           <input
             type="text"
             value={id}
             onChange={(e) => setId(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && preview()}
             placeholder="输入ID或铭文号"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded"
+            className="px-2 py-1 border border-gray-300"
           />
           <input
             type="number"
@@ -85,12 +85,11 @@ export default function GifGenerator() {
             min={100}
             max={1200}
             step={100}
-            placeholder="分辨率(100-1200)"
-            className="w-32 px-3 py-2 border border-gray-300 rounded"
+            className="w-16 px-2 py-1 border border-gray-300"
           />
           <button
             onClick={preview}
-            className="px-4 py-2 bg-[#4CAF50] text-white rounded hover:bg-[#45a049] transition-colors"
+            className="px-4 py-1 bg-gray-200 hover:bg-gray-300"
           >
             生成预览
           </button>
@@ -98,7 +97,7 @@ export default function GifGenerator() {
 
         <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
 
-        <div className="speed-control flex items-center gap-2">
+        <div className="flex items-center gap-2 my-2">
           <input
             type="range"
             min={0.1}
@@ -114,9 +113,9 @@ export default function GifGenerator() {
         <button
           onClick={() => {}}
           disabled={isGenerating || !images.upper || !images.lower}
-          className="w-full px-4 py-2 bg-[#2196F3] text-white rounded hover:bg-[#1976D2] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-1 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
         >
-          {isGenerating ? '生成中...' : '保存GIF'}
+          保存GIF
         </button>
       </div>
 
@@ -129,19 +128,15 @@ export default function GifGenerator() {
       />
 
       {status && (
-        <div className={`mt-4 p-3 rounded ${
-          status.includes('失败') ? 'bg-red-100 text-red-700' : 
-          status.includes('完成') ? 'bg-green-100 text-green-700' : 
-          'bg-blue-100 text-blue-700'
-        }`}>
+        <div className="px-4 py-2 text-sm text-gray-600">
           {status}
         </div>
       )}
 
       {isGenerating && (
-        <div className="mt-4 w-4/5 mx-auto h-5 bg-gray-200 rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-gray-200">
           <div 
-            className="h-full bg-[#4CAF50] transition-all duration-300"
+            className="h-full bg-blue-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
