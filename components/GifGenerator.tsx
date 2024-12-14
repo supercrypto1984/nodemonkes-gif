@@ -305,4 +305,3 @@ function reduceColorDepth(data: Uint8ClampedArray) {
     data[i + 2] = Math.round(data[i + 2] / 16) * 16 // B
   }
 }
-
