@@ -1,36 +1,33 @@
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
+'use client'
 
-interface BackgroundControlsProps {
+export default function BackgroundControls({ 
+  bgColor, 
+  setBgColor 
+}: { 
   bgColor: string
-  setBgColor: (color: string) => void
-}
-
-export default function BackgroundControls({ bgColor, setBgColor }: BackgroundControlsProps) {
+  setBgColor: (color: string) => void 
+}) {
   return (
-    <div className="flex flex-wrap gap-3">
-      <Button 
+    <div className="background-controls flex justify-center gap-2">
+      <button
         onClick={() => setBgColor('#ffffff')}
-        variant="outline"
-        className="flex-1 min-w-[120px]"
+        className="px-4 py-2 bg-[#4CAF50] text-white rounded hover:bg-[#45a049] transition-colors"
       >
         无背景
-      </Button>
-      <Button 
+      </button>
+      <button
         onClick={() => setBgColor('auto')}
-        variant="outline"
-        className="flex-1 min-w-[120px]"
+        className="px-4 py-2 bg-[#4CAF50] text-white rounded hover:bg-[#45a049] transition-colors"
       >
         自动背景
-      </Button>
-      <div className="relative flex-1 min-w-[120px]">
-        <Input
-          type="color"
-          value={bgColor}
-          onChange={(e) => setBgColor(e.target.value)}
-          className="w-full h-10 cursor-pointer"
-        />
-      </div>
+      </button>
+      <button
+        onClick={() => setBgColor('#000000')}
+        className="px-4 py-2 bg-[#4CAF50] text-white rounded hover:bg-[#45a049] transition-colors"
+      >
+        自定义背景
+      </button>
     </div>
   )
 }
+
