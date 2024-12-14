@@ -42,4 +42,3 @@ export const BODY_COLORS = {
   wrapped: "#FFFFFF",
   zombie: "#104119"
 }
-
