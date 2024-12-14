@@ -15,17 +15,28 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
     if (canvasRef.current && images.upper && images.lower) {
       const ctx = canvasRef.current.getContext('2d')
       if (ctx) {
-        // Placeholder for animation logic
-        const animate = () => {
-          ctx.fillStyle = bgColor
-          ctx.fillRect(0, 0, resolution, resolution)
-          // Draw placeholder images
-          ctx.fillStyle = 'black'
-          ctx.font = '20px Arial'
-          ctx.fillText('Preview Placeholder', resolution / 2 - 80, resolution / 2)
-          animationRef.current = requestAnimationFrame(animate)
+        const upperImg = new Image()
+        const lowerImg = new Image()
+      
+        upperImg.onload = () => {
+          lowerImg.onload = () => {
+            // 两张图片都加载完成后，开始动画
+            const animate = () => {
+              // 动画逻辑（保持原有的占位符逻辑）
+              ctx.fillStyle = bgColor
+              ctx.fillRect(0, 0, resolution, resolution)
+              ctx.drawImage(upperImg, 0, 0, resolution, resolution)
+              ctx.drawImage(lowerImg, 0, 0, resolution, resolution)
+              animationRef.current = requestAnimationFrame(animate)
+            }
+            animate()
+          }
+          lowerImg.src = images.lower
         }
-        animate()
+        upperImg.src = images.upper
+
+        upperImg.onerror = () => console.error('Failed to load upper body image')
+        lowerImg.onerror = () => console.error('Failed to load lower body image')
       }
     }
 
