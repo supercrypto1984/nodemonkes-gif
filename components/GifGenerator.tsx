@@ -421,7 +421,8 @@ function drawFrame(
   upperImg: HTMLImageElement,
   lowerImg: HTMLImageElement,
   frameIndex: number,
-  size: number,bgColor: string
+  size: number,
+  bgColor: string
 ) {
   const PARAMS = {
     frameCount: 24,
@@ -476,3 +477,4 @@ function drawFrame(
   }
   ctx.restore()
 }
+
