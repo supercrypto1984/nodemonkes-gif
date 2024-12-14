@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
+import { GIF } from 'gif.js'
 
 export default function GifGenerator() {
   const [id, setId] = useState('')
@@ -37,7 +38,7 @@ export default function GifGenerator() {
     }
   }
 
-  const generateGIF = () => {
+  const generateGIF = async () => {
     if (!images.upper || !images.lower) {
       setStatus('请先生成预览')
       return
@@ -46,11 +47,40 @@ export default function GifGenerator() {
     setIsGenerating(true)
     setStatus('开始生成GIF...')
 
-    // Placeholder for GIF generation logic
-    setTimeout(() => {
+    try {
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        width: resolution,
+        height: resolution,
+        workerScript: '/nodemonkes-gif/gif.worker.js'
+      })
+
+      // 这里应该添加帧到GIF
+      // 例如：
+      // for (let i = 0; i < frameCount; i++) {
+      //   const frame = generateFrame(i)
+      //   gif.addFrame(frame, { delay: 100 })
+      // }
+
+      gif.on('finished', (blob) => {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `nodemonke_${id}.gif`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        setIsGenerating(false)
+        setStatus('GIF生成完成！')
+      })
+
+      gif.render()
+    } catch (error) {
       setIsGenerating(false)
-      setStatus('GIF生成完成！')
-    }, 3000)
+      setStatus('GIF生成失败')
+    }
   }
 
   return (
