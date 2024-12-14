@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { PARAMS } from '../utils/constants'
 
 interface PreviewProps {
   canvasRef: React.RefObject<HTMLCanvasElement>
-  images: { upper: HTMLImageElement | null; lower: HTMLImageElement | null }
+  images: { upper: string | null; lower: string | null }
   bgColor: string
   resolution: number
   speed: number
@@ -16,23 +15,17 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
     if (canvasRef.current && images.upper && images.lower) {
       const ctx = canvasRef.current.getContext('2d')
       if (ctx) {
-        let frame = 0
-        let lastTime = 0
-
-        const animate = (currentTime: number) => {
-          if (!lastTime) lastTime = currentTime
-          const deltaTime = currentTime - lastTime
-
-          if (deltaTime >= PARAMS.frameDelay / speed) {
-            drawFrame(ctx, images.upper!, images.lower!, frame, resolution, bgColor)
-            frame = (frame + 1) % PARAMS.frameCount
-            lastTime = currentTime
-          }
-
+        // Placeholder for animation logic
+        const animate = () => {
+          ctx.fillStyle = bgColor
+          ctx.fillRect(0, 0, resolution, resolution)
+          // Draw placeholder images
+          ctx.fillStyle = 'black'
+          ctx.font = '20px Arial'
+          ctx.fillText('Preview Placeholder', resolution / 2 - 80, resolution / 2)
           animationRef.current = requestAnimationFrame(animate)
         }
-
-        animationRef.current = requestAnimationFrame(animate)
+        animate()
       }
     }
 
@@ -48,10 +41,5 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
       <canvas ref={canvasRef} width={resolution} height={resolution} />
     </div>
   )
-}
-
-function drawFrame(ctx: CanvasRenderingContext2D, upperImg: HTMLImageElement, lowerImg: HTMLImageElement, frameIndex: number, size: number, bgColor: string) {
-  // Implementation of drawFrame function (same as in the original code)
-  // ...
 }
 
