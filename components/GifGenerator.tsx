@@ -5,12 +5,12 @@ import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
 
 interface Metadata {
-  id: number
-  inscription: number
+  id: number;
+  inscription: number;
   attributes: {
-    Body: string
-    [key: string]: string
-  }
+    Body: string;
+    [key: string]: string;
+  };
 }
 
 export default function GifGenerator() {
@@ -55,11 +55,11 @@ export default function GifGenerator() {
         lower: `https://nodemonkes.4everland.store/lowerbody/${id}.png`
       })
       
-      const metadata = metadata.find((item: Metadata) => item.id === parseInt(id))
-      if (metadata) {
-        setStatus(`预览就绪 (ID: ${id}, 铭文号: ${metadata.inscription}, Body: ${metadata.attributes.Body})`)
+      const foundMetadata = metadata.find((item: Metadata) => item.id === parseInt(id));
+      if (foundMetadata) {
+        setStatus(`预览就绪 (ID: ${id}, 铭文号: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`);
       } else {
-        setStatus('预览就绪')
+        setStatus('预览就绪');
       }
     } catch (error) {
       setStatus('加载图片失败')
