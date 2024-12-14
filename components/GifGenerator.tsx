@@ -91,13 +91,13 @@ const defaultResolution = isMobile ? 400 : 600;
 
 function reduceColorDepth(data: Uint8ClampedArray) {
   for (let i = 0; i < data.length; i += 4) {
-    data[i] = Math.round(data[i] / 16) * 16;     // R
-    data[i + 1] = Math.round(data[i + 1] / 16) * 16; // G
-    data[i + 2] = Math.round(data[i + 2] / 16) * 16; // B
+    data[i] = Math.round(data[i] / 8) * 8;     // R
+    data[i + 1] = Math.round(data[i + 1] / 8) * 8; // G
+    data[i + 2] = Math.round(data[i + 2] / 8) * 8; // B
   }
 }
 
-const FRAME_COUNT = 36; // Increased from 24 to 36 for smoother animation
+const FRAME_COUNT = 48; // Increased from 36 to 48 for smoother animation
 const BASE_FRAME_DELAY = 1000 / 30; // Aiming for 30 fps
 
 export default function GifGenerator() {
@@ -296,7 +296,7 @@ export default function GifGenerator() {
         setProgress(Math.round(p * 100));
       });
 
-      const targetFrameCount = 18;
+      const targetFrameCount = 24; // Increased from 18 to 24
       const frameSkip = Math.max(1, Math.floor(FRAME_COUNT / targetFrameCount));
       const frameDelay = Math.max(20, Math.round(BASE_FRAME_DELAY * frameSkip / speed));
 
@@ -497,6 +497,10 @@ async function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
+function smoothInterpolation(start: number, end: number, t: number): number {
+  return start + (end - start) * easeInOutQuad(t);
+}
+
 function drawFrame(
   ctx: CanvasRenderingContext2D,
   upperImg: HTMLImageElement,
@@ -518,10 +522,10 @@ function drawFrame(
   ctx.fillStyle = bgColor || '#ffffff'
   ctx.fillRect(0, 0, size, size)
 
-  const rotation = Math.sin(progress * Math.PI * 2) * PARAMS.rotationRange
+  const rotation = smoothInterpolation(-PARAMS.rotationRange, PARAMS.rotationRange, (Math.sin(progress * Math.PI * 2) + 1) / 2);
   const isRaising = rotation < 0
 
-  const pressDownPhase = Math.max(0, Math.sin(progress * Math.PI * 2))
+  const pressDownPhase = smoothInterpolation(0, 1, (Math.sin(progress * Math.PI * 2) + 1) / 2);
   const pressDownOffset = pressDownPhase * PARAMS.pressDownStrength
   const insertionOffset = pressDownPhase * PARAMS.insertionStrength
   const insertionRotation = pressDownPhase * PARAMS.insertionAngle
