@@ -21,16 +21,17 @@ export default function GifGenerator() {
   const [speed, setSpeed] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [status, setStatus] = useState('')
+  const [isError, setIsError] = useState(false)
   const [progress, setProgress] = useState(0)
   const [images, setImages] = useState<{ upper: string | null, lower: string | null }>({ upper: null, lower: null })
   const [metadata, setMetadata] = useState<Metadata[]>([])
+  const [showColorPicker, setShowColorPicker] = useState(false)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const outputCanvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     loadMetadata()
-    // Create output canvas for GIF generation
     const canvas = document.createElement('canvas')
     canvas.width = resolution
     canvas.height = resolution
@@ -45,22 +46,22 @@ export default function GifGenerator() {
       console.log('元数据加载完成')
     } catch (error) {
       console.error('加载元数据失败:', error)
-      setStatus('加载元数据失败')
+      showStatus('加载元数据失败', true)
     }
   }
 
   const getAutoBackground = (imageId: number) => {
-    const metadata = metadata.find(item => item.id === imageId)
-    if (metadata?.attributes?.Body) {
-      const bodyType = metadata.attributes.Body.toLowerCase()
+    const item = metadata.find(item => item.id === imageId)
+    if (item?.attributes?.Body) {
+      const bodyType = item.attributes.Body.toLowerCase()
       return BODY_COLORS[bodyType] || null
     }
     return null
   }
 
   const findIdByInscription = (inscription: number) => {
-    const metadata = metadata.find(item => item.inscription === inscription)
-    return metadata ? metadata.id : null
+    const item = metadata.find(item => item.inscription === inscription)
+    return item ? item.id : null
   }
 
   const getImageId = (input: string) => {
@@ -71,26 +72,31 @@ export default function GifGenerator() {
       }
       const idFromInscription = findIdByInscription(numValue)
       if (idFromInscription) {
-        setStatus(`找到铭文号 ${numValue} 对应的ID: ${idFromInscription}`)
+        showStatus(`找到铭文号 ${numValue} 对应的ID: ${idFromInscription}`)
         return idFromInscription
       }
     }
     return null
   }
 
+  const showStatus = (message: string, error = false) => {
+    setStatus(message)
+    setIsError(error)
+  }
+
   const preview = async () => {
     if (!id) {
-      setStatus('请输入ID或铭文号')
+      showStatus('请输入ID或铭文号', true)
       return
     }
 
     const imageId = getImageId(id)
     if (!imageId) {
-      setStatus('无效的ID或铭文号', true)
+      showStatus('无效的ID或铭文号', true)
       return
     }
 
-    setStatus('加载图片中...')
+    showStatus('加载图片中...')
     try {
       setImages({
         upper: `https://nodemonkes.4everland.store/upperbody/${imageId}.png`,
@@ -99,13 +105,41 @@ export default function GifGenerator() {
       
       const foundMetadata = metadata.find((item: Metadata) => item.id === imageId)
       if (foundMetadata) {
-        setStatus(`预览就绪 (ID: ${imageId}, 铭文号: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`)
+        showStatus(`预览就绪 (ID: ${imageId}, 铭文号: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`)
       } else {
-        setStatus('预览就绪')
+        showStatus('预览就绪')
       }
     } catch (error) {
-      setStatus('加载图片失败')
+      showStatus('加载图片失败', true)
     }
+  }
+
+  const updateBackground = (type: 'none' | 'auto' | 'custom') => {
+    if (!images.upper || !images.lower) {
+      showStatus('请先生成预览', true)
+      return
+    }
+
+    let newBgColor: string
+    switch (type) {
+      case 'none':
+        newBgColor = '#ffffff'
+        break
+      case 'auto':
+        const autoBg = getAutoBackground(parseInt(id))
+        if (!autoBg) {
+          showStatus('无法确定自动背景颜色', true)
+          return
+        }
+        newBgColor = autoBg
+        break
+      case 'custom':
+        setShowColorPicker(true)
+        return
+    }
+
+    setBgColor(newBgColor)
+    showStatus(`背景已更新: ${type === 'none' ? '无背景' : type === 'auto' ? '自动背景' : '自定义背景'} (${newBgColor})`)
   }
 
   const reduceColorDepth = (data: Uint8ClampedArray) => {
@@ -118,7 +152,7 @@ export default function GifGenerator() {
 
   const generateGIF = async () => {
     if (!images.upper || !images.lower) {
-      setStatus('请先生成预览')
+      showStatus('请先生成预览', true)
       return
     }
 
@@ -126,7 +160,6 @@ export default function GifGenerator() {
     setProgress(0)
 
     try {
-      // Create worker blob
       const workerBlob = new Blob([await fetch('/gif.worker.js').then(r => r.text())], 
         { type: 'application/javascript' })
       const workerUrl = URL.createObjectURL(workerBlob)
@@ -167,8 +200,9 @@ export default function GifGenerator() {
         reduceColorDepth(imageData.data)
         ctx.putImageData(imageData, 0, 0)
         
-        gif.addFrame(ctx.canvas, {copy: true, delay: frameDelay})
-        setStatus(`添加帧: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`)
+        const optimizedDelay = Math.round(frameDelay / speed)
+        gif.addFrame(ctx.canvas, {copy: true, delay: optimizedDelay})
+        showStatus(`添加帧: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`)
         await new Promise(r => setTimeout(r, 10))
       }
 
@@ -176,12 +210,12 @@ export default function GifGenerator() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `animation_${id}_speed_${speed.toFixed(1)}.gif`
+        a.download = `animation_${id}_optimized_speed_${speed.toFixed(1)}.gif`
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
-        setStatus('GIF生成完成！')
+        showStatus('GIF生成完成！')
         setProgress(0)
         setIsGenerating(false)
       })
@@ -189,7 +223,7 @@ export default function GifGenerator() {
       gif.render()
 
     } catch (error) {
-      setStatus(`生成失败: ${error instanceof Error ? error.message : String(error)}`)
+      showStatus(`生成失败: ${error instanceof Error ? error.message : String(error)}`, true)
       setProgress(0)
       setIsGenerating(false)
     }
@@ -254,7 +288,13 @@ export default function GifGenerator() {
         </button>
       </div>
 
-      <BackgroundControls bgColor={bgColor} setBgColor={setBgColor} />
+      <BackgroundControls 
+        bgColor={bgColor} 
+        setBgColor={setBgColor} 
+        updateBackground={updateBackground}
+        showColorPicker={showColorPicker}
+        setShowColorPicker={setShowColorPicker}
+      />
 
       <div style={{ margin: '10px 0' }}>
         <input
@@ -301,8 +341,8 @@ export default function GifGenerator() {
           padding: '10px',
           borderRadius: '4px',
           textAlign: 'center',
-          background: '#e8f5e9',
-          color: '#2e7d32',
+          background: isError ? '#ffebee' : '#e8f5e9',
+          color: isError ? '#c62828' : '#2e7d32',
         }}>
           {status}
         </div>
@@ -381,8 +421,7 @@ function drawFrame(
   upperImg: HTMLImageElement,
   lowerImg: HTMLImageElement,
   frameIndex: number,
-  size: number,
-  bgColor: string
+  size: number,bgColor: string
 ) {
   const PARAMS = {
     frameCount: 24,
