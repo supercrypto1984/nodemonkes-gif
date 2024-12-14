@@ -129,6 +129,35 @@ export default function GifGenerator() {
     outputCanvasRef.current.height = resolution
   }, [resolution])
 
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') preview();
+    };
+
+    const idInput = document.getElementById('idInput');
+    idInput?.addEventListener('keypress', handleKeyPress);
+
+    return () => {
+      idInput?.removeEventListener('keypress', handleKeyPress);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleResolutionChange = (e: Event) => {
+      const input = e.target as HTMLInputElement;
+      const newResolution = parseInt(input.value) || 600;
+      setResolution(newResolution);
+    };
+
+    const resolutionInput = document.getElementById('resolutionInput');
+    resolutionInput?.addEventListener('change', handleResolutionChange);
+
+    return () => {
+      resolutionInput?.removeEventListener('change', handleResolutionChange);
+    };
+  }, []);
+
+
   const loadMetadata = async () => {
     try {
       const response = await fetch('https://nodemonkes.4everland.store/metadata.json')
@@ -454,35 +483,6 @@ export default function GifGenerator() {
           />
         </div>
       )}
-
-      {/* Moved useEffect hooks here */}
-      useEffect(() => {
-        const handleKeyPress = (e: KeyboardEvent) => {
-          if (e.key === 'Enter') preview();
-        };
-
-        const idInput = document.getElementById('idInput');
-        idInput?.addEventListener('keypress', handleKeyPress);
-
-        return () => {
-          idInput?.removeEventListener('keypress', handleKeyPress);
-        };
-      }, []);
-
-      useEffect(() => {
-        const handleResolutionChange = (e: Event) => {
-          const input = e.target as HTMLInputElement;
-          const newResolution = parseInt(input.value) || 600;
-          setResolution(newResolution);
-        };
-
-        const resolutionInput = document.getElementById('resolutionInput');
-        resolutionInput?.addEventListener('change', handleResolutionChange);
-
-        return () => {
-          resolutionInput?.removeEventListener('change', handleResolutionChange);
-        };
-      }, []);
     </div>
   )
 }
