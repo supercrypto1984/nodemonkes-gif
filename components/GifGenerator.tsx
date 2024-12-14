@@ -35,7 +35,7 @@ export default function GifGenerator() {
     const canvas = document.createElement('canvas')
     canvas.width = resolution
     canvas.height = resolution
-    outputCanvasRef.current = canvas
+    outputCanvasRef.current = canvas as HTMLCanvasElement
   }, [])
 
   const loadMetadata = async () => {
