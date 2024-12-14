@@ -286,18 +286,29 @@ export default function GifGenerator() {
       }
 
       gif.on('finished', (blob: Blob) => {
-        // Create a new Image element
-        const img = document.createElement('img')
-        // Set the source of the image to the blob URL
-        img.src = URL.createObjectURL(blob)
-        // When the image loads, create a link and trigger the download
-        img.onload = () => {
-          const link = document.createElement('a')
-          link.download = `animation_${id}_optimized_speed_${speed.toFixed(1)}.gif`
-          link.href = img.src
-          link.click()
-          // Clean up
-          URL.revokeObjectURL(link.href)
+        const url = URL.createObjectURL(blob)
+        const img = new Image()
+        img.src = url
+        img.onload = function() {
+          const canvas = document.createElement('canvas')
+          canvas.width = img.width
+          canvas.height = img.height
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            ctx.drawImage(img, 0, 0)
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `animation_${id}_optimized_speed_${speed.toFixed(1)}.gif`
+                document.body.appendChild(a)
+                a.click()
+                document.body.removeChild(a)
+                URL.revokeObjectURL(url)
+              }
+            }, 'image/gif')
+          }
         }
         showStatus('GIF生成完成！')
         setProgress(0)
