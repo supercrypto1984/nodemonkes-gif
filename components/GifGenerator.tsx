@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, MutableRefObject } from 'react'
+import { useState, useRef, useEffect, MutableRefObject, useCallback } from 'react'
 import Preview from './Preview'
 import BackgroundControls from './BackgroundControls'
 import GIF from 'gif.js'
@@ -229,7 +229,7 @@ export default function GifGenerator() {
     }
   }
 
-  const generateGIF = async () => {
+  const generateGIF = useCallback(async () => {
     if (!images.upper || !images.lower) {
       showStatus('请先生成预览', true)
       return
@@ -306,7 +306,7 @@ export default function GifGenerator() {
       setProgress(0)
       setIsGenerating(false)
     }
-  }
+  }, [images, resolution, bgColor, speed, id, outputCanvasRef])
 
   return (
     <div style={{
