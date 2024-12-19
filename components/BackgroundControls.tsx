@@ -30,7 +30,7 @@ export default function BackgroundControls({
           margin: '0 5px',
         }}
       >
-        无背景
+        No Background
       </button>
       <button
         onClick={() => updateBackground('auto')}
@@ -45,7 +45,7 @@ export default function BackgroundControls({
           margin: '0 5px',
         }}
       >
-        自动背景
+        Auto Background
       </button>
       <button
         onClick={() => updateBackground('custom')}
@@ -60,7 +60,7 @@ export default function BackgroundControls({
           margin: '0 5px',
         }}
       >
-        自定义背景
+        Custom Background
       </button>
       {showColorPicker && (
         <div style={{ margin: '10px 0' }}>
@@ -88,7 +88,7 @@ export default function BackgroundControls({
               margin: '0 5px',
             }}
           >
-            确认颜色
+            Confirm Color
           </button>
         </div>
       )}
