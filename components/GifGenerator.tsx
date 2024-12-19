@@ -288,8 +288,8 @@ export default function GifGenerator() {
       const gif = new GIF({
         workers: navigator.hardwareConcurrency > 1 ? 2 : 1,
         quality: 10,
-        width: resolution,
-        height: resolution,
+        width: typeof resolution === 'number' ? resolution : defaultResolution,
+        height: typeof resolution === 'number' ? resolution : defaultResolution,
         workerScript: workerUrl,
         dither: false,
         transparent: null,
