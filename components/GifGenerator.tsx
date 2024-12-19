@@ -102,7 +102,7 @@ const BASE_FRAME_DELAY = 1000 / 30; // Aiming for 30 fps
 
 export default function GifGenerator() {
   const [id, setId] = useState('')
-  const [resolution, setResolution] = useState(defaultResolution)
+  const [resolution, setResolution] = useState<number | ''>(defaultResolution)
   const [bgColor, setBgColor] = useState('#ffffff')
   const [speed, setSpeed] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -384,7 +384,10 @@ export default function GifGenerator() {
             id="resolutionInput"
             type="number"
             value={resolution}
-            onChange={(e) => setResolution(Number(e.target.value))}
+            onChange={(e) => {
+              const value = e.target.value;
+              setResolution(value === '' ? '' : Number(value));
+            }}
             min={100}
             max={1200}
             step={100}
