@@ -128,7 +128,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
           height: '100%',
           color: '#999',
         }}>
-          预览区域
+          Preview Area
         </div>
       )}
     </div>
