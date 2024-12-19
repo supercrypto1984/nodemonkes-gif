@@ -160,7 +160,6 @@ export default function GifGenerator() {
     };
   }, []);
 
-
   const loadMetadata = async () => {
     try {
       const response = await fetch('https://nodemonkes.4everland.store/metadata.json')
@@ -264,7 +263,6 @@ export default function GifGenerator() {
     setBgColor(newBgColor)
     showStatus(`Background updated: ${type === 'none' ? 'No background' : type === 'auto' ? 'Auto background' : 'Custom background'} (${newBgColor})`)
   }
-
 
   const generateGIF = useCallback(async () => {
     if (!images.upper || !images.lower) {
@@ -389,6 +387,21 @@ export default function GifGenerator() {
             borderRadius: '4px',
           }}
         />
+        <button
+          onClick={preview}
+          style={{
+            padding: '8px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            background: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            margin: '0 5px',
+          }}
+        >
+          Generate Preview
+        </button>
       </div>
 
       <BackgroundControls 
