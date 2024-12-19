@@ -131,7 +131,10 @@ export default function GifGenerator() {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') preview();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        preview();
+      }
     };
 
     const idInput = document.getElementById('idInput');
@@ -140,7 +143,7 @@ export default function GifGenerator() {
     return () => {
       idInput?.removeEventListener('keypress', handleKeyPress);
     };
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     const handleResolutionChange = (e: Event) => {
@@ -157,16 +160,15 @@ export default function GifGenerator() {
     };
   }, []);
 
-
   const loadMetadata = async () => {
     try {
       const response = await fetch('https://nodemonkes.4everland.store/metadata.json')
       const data = await response.json()
       setMetadata(data)
-      console.log('元数据加载完成')
+      console.log('Metadata loading complete')
     } catch (error) {
-      console.error('加载元数据失败:', error)
-      showStatus('加载元数据失败', true)
+      console.error('Failed to load metadata:', error)
+      showStatus('Failed to load metadata', true)
     }
   }
 
@@ -192,7 +194,7 @@ export default function GifGenerator() {
       }
       const idFromInscription = findIdByInscription(numValue)
       if (idFromInscription) {
-        showStatus(`找到铭文号 ${numValue} 对应的ID: ${idFromInscription}`)
+        showStatus(`Found ID ${idFromInscription} for Inscription Number ${numValue}`)
         return idFromInscription
       }
     }
@@ -206,17 +208,17 @@ export default function GifGenerator() {
 
   const preview = async () => {
     if (!id) {
-      showStatus('请输入ID或铭文号', true)
+      showStatus('Please enter an ID or Inscription Number', true)
       return
     }
 
     const imageId = getImageId(id)
     if (!imageId) {
-      showStatus('无效的ID或铭文号', true)
+      showStatus('Invalid ID or Inscription Number', true)
       return
     }
 
-    showStatus('加载图片中...')
+    showStatus('Loading images...')
     try {
       setImages({
         upper: `https://nodemonkes.4everland.store/upperbody/${imageId}.png`,
@@ -225,18 +227,18 @@ export default function GifGenerator() {
       
       const foundMetadata = metadata.find((item: Metadata) => item.id === imageId)
       if (foundMetadata) {
-        showStatus(`预览就绪 (ID: ${imageId}, 铭文号: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`)
+        showStatus(`Preview ready (ID: ${imageId}, Inscription: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`)
       } else {
-        showStatus('预览就绪')
+        showStatus('Preview ready')
       }
     } catch (error) {
-      showStatus('加载图片失败', true)
+      showStatus('Failed to load images', true)
     }
   }
 
   const updateBackground = (type: 'none' | 'auto' | 'custom') => {
     if (!images.upper || !images.lower) {
-      showStatus('请先生成预览', true)
+      showStatus('Please generate a preview first', true)
       return
     }
 
@@ -248,7 +250,7 @@ export default function GifGenerator() {
       case 'auto':
         const autoBg = getAutoBackground(parseInt(id))
         if (!autoBg) {
-          showStatus('无法确定自动背景颜色', true)
+          showStatus('Unable to determine automatic background color', true)
           return
         }
         newBgColor = autoBg
@@ -259,13 +261,12 @@ export default function GifGenerator() {
     }
 
     setBgColor(newBgColor)
-    showStatus(`背景已更新: ${type === 'none' ? '无背景' : type === 'auto' ? '自动背景' : '自定义背景'} (${newBgColor})`)
+    showStatus(`Background updated: ${type === 'none' ? 'No background' : type === 'auto' ? 'Auto background' : 'Custom background'} (${newBgColor})`)
   }
-
 
   const generateGIF = useCallback(async () => {
     if (!images.upper || !images.lower) {
-      showStatus('请先生成预览', true);
+      showStatus('Please generate a preview first', true);
       return;
     }
 
@@ -318,7 +319,7 @@ export default function GifGenerator() {
         ctx.putImageData(imageData, 0, 0);
         
         gif.addFrame(ctx.canvas, {copy: true, delay: frameDelay});
-        showStatus(`添加帧: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`);
+        showStatus(`Adding frame: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`);
         await new Promise(r => setTimeout(r, 10));
       }
 
@@ -331,7 +332,7 @@ export default function GifGenerator() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        showStatus('GIF生成完成！');
+        showStatus('GIF generation complete!');
         setProgress(0);
         setIsGenerating(false);
       });
@@ -339,7 +340,7 @@ export default function GifGenerator() {
       gif.render();
 
     } catch (error) {
-      showStatus(`生成失败: ${error instanceof Error ? error.message : String(error)}`, true);
+      showStatus(`Generation failed: ${error instanceof Error ? error.message : String(error)}`, true);
       setProgress(0);
       setIsGenerating(false);
     }
@@ -361,7 +362,7 @@ export default function GifGenerator() {
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
-          placeholder="输入ID或铭文号"
+          placeholder="Enter ID or Inscription Number"
           style={{
             padding: '8px',
             fontSize: '16px',
@@ -401,7 +402,7 @@ export default function GifGenerator() {
             margin: '0 5px',
           }}
         >
-          生成预览
+          Generate Preview
         </button>
       </div>
 
@@ -441,7 +442,7 @@ export default function GifGenerator() {
           opacity: isGenerating || !images.upper || !images.lower ? 0.5 : 1,
         }}
       >
-        保存GIF
+        Save GIF
       </button>
 
       <Preview 
@@ -567,3 +568,4 @@ function drawFrame(
 function easeInOutQuad(t: number): number {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
+
