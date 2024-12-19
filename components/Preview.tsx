@@ -105,16 +105,30 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
   }, [canvasRef, images, bgColor, resolution, speed])
 
   return (
-    <div className="relative w-full aspect-square max-w-[600px] mx-auto bg-zinc-900/50 border-2 border-dashed border-zinc-700/50 rounded-lg overflow-hidden">
+    <div style={{
+      width: '600px',
+      height: '600px',
+      margin: '20px auto',
+      background: '#ffffff',
+      border: '2px dashed #ccc',
+      overflow: 'hidden',
+      borderRadius: '4px',
+    }}>
       <canvas 
         ref={canvasRef} 
         width={resolution} 
         height={resolution}
-        className="max-w-full h-auto"
+        style={{ maxWidth: '100%', height: 'auto' }}
       />
       {!images.upper && !images.lower && (
-        <div className="absolute inset-0 flex items-center justify-center text-zinc-500">
-          Preview Area
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          color: '#999',
+        }}>
+          预览区域
         </div>
       )}
     </div>
