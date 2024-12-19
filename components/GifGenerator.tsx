@@ -212,6 +212,10 @@ export default function GifGenerator() {
       return
     }
 
+    if (resolution === '') {
+      setResolution(defaultResolution);
+    }
+
     const imageId = getImageId(id)
     if (!imageId) {
       showStatus('Invalid ID or Inscription Number', true)
@@ -224,7 +228,7 @@ export default function GifGenerator() {
         upper: `https://nodemonkes.4everland.store/upperbody/${imageId}.png`,
         lower: `https://nodemonkes.4everland.store/lowerbody/${imageId}.png`
       })
-      
+
       const foundMetadata = metadata.find((item: Metadata) => item.id === imageId)
       if (foundMetadata) {
         showStatus(`Preview ready (ID: ${imageId}, Inscription: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`)
@@ -306,19 +310,19 @@ export default function GifGenerator() {
 
       for (let i = 0; i < FRAME_COUNT; i += frameSkip) {
         if (!outputCanvasRef.current) return;
-        
+
         const progress = i / FRAME_COUNT;
-        drawFrame(ctx, 
-          await loadImage(images.upper), 
-          await loadImage(images.lower), 
+        drawFrame(ctx,
+          await loadImage(images.upper),
+          await loadImage(images.lower),
           progress, resolution, bgColor
         );
-        
+
         const imageData = ctx.getImageData(0, 0, resolution, resolution);
         reduceColorDepth(imageData.data);
         ctx.putImageData(imageData, 0, 0);
-        
-        gif.addFrame(ctx.canvas, {copy: true, delay: frameDelay});
+
+        gif.addFrame(ctx.canvas, { copy: true, delay: frameDelay });
         showStatus(`Adding frame: ${Math.floor(i / frameSkip) + 1}/${targetFrameCount}`);
         await new Promise(r => setTimeout(r, 10));
       }
@@ -414,9 +418,9 @@ export default function GifGenerator() {
         </button>
       </div>
 
-      <BackgroundControls 
-        bgColor={bgColor} 
-        setBgColor={setBgColor} 
+      <BackgroundControls
+        bgColor={bgColor}
+        setBgColor={setBgColor}
         updateBackground={updateBackground}
         showColorPicker={showColorPicker}
         setShowColorPicker={setShowColorPicker}
@@ -460,7 +464,7 @@ export default function GifGenerator() {
         Save GIF
       </button>
 
-      <Preview 
+      <Preview
         canvasRef={canvasRef}
         images={images}
         bgColor={bgColor}
@@ -489,7 +493,7 @@ export default function GifGenerator() {
           borderRadius: '10px',
           overflow: 'hidden',
         }}>
-          <div 
+          <div
             style={{
               width: `${progress}%`,
               height: '100%',
@@ -554,9 +558,9 @@ function drawFrame(
   const scaleY = 1 - smoothCompression
   const scaleX = 1 + (smoothCompression * 0.2)
 
-  ctx.translate(size/2, size)
+  ctx.translate(size / 2, size)
   ctx.scale(scaleX, scaleY)
-  ctx.translate(-size/2, -size)
+  ctx.translate(-size / 2, -size)
   ctx.drawImage(lowerImg, 0, pressDownOffset, size, size)
   ctx.restore()
 
