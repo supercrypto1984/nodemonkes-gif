@@ -131,7 +131,10 @@ export default function GifGenerator() {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') preview();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        preview();
+      }
     };
 
     const idInput = document.getElementById('idInput');
@@ -140,7 +143,7 @@ export default function GifGenerator() {
     return () => {
       idInput?.removeEventListener('keypress', handleKeyPress);
     };
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     const handleResolutionChange = (e: Event) => {
@@ -386,21 +389,6 @@ export default function GifGenerator() {
             borderRadius: '4px',
           }}
         />
-        <button
-          onClick={preview}
-          style={{
-            padding: '8px 20px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            background: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            margin: '0 5px',
-          }}
-        >
-          Generate Preview
-        </button>
       </div>
 
       <BackgroundControls 
