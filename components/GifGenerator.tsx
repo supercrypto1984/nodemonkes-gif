@@ -372,23 +372,31 @@ export default function GifGenerator() {
             borderRadius: '4px',
           }}
         />
-        <input
-          id="resolutionInput"
-          type="number"
-          value={resolution}
-          onChange={(e) => setResolution(Number(e.target.value))}
-          min={100}
-          max={1200}
-          step={100}
-          style={{
-            padding: '8px',
-            fontSize: '16px',
-            width: '100px',
-            marginRight: '10px',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-          }}
-        />
+        <div style={{ margin: '20px 0' }}>
+          <label htmlFor="resolutionInput" style={{ marginRight: '10px', fontSize: '14px' }}>
+            Resolution (px):
+          </label>
+          <input
+            id="resolutionInput"
+            type="number"
+            value={resolution}
+            onChange={(e) => setResolution(Number(e.target.value))}
+            min={100}
+            max={1200}
+            step={100}
+            style={{
+              padding: '8px',
+              fontSize: '16px',
+              width: '100px',
+              marginRight: '10px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
+          />
+          <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+            Adjust the size of the generated GIF (100-1200 pixels)
+          </div>
+        </div>
         <button
           onClick={preview}
           style={{
@@ -414,8 +422,12 @@ export default function GifGenerator() {
         setShowColorPicker={setShowColorPicker}
       />
 
-      <div style={{ margin: '10px 0' }}>
+      <div style={{ margin: '20px 0' }}>
+        <label htmlFor="speedInput" style={{ marginRight: '10px', fontSize: '14px' }}>
+          Animation Speed:
+        </label>
         <input
+          id="speedInput"
           type="range"
           min={0.1}
           max={5}
@@ -425,6 +437,9 @@ export default function GifGenerator() {
           style={{ width: '200px', marginRight: '10px' }}
         />
         <span>{speed.toFixed(1)}x</span>
+        <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+          Adjust the speed of the animation (0.1x - 5x)
+        </div>
       </div>
 
       <button
