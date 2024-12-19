@@ -125,8 +125,8 @@ export default function GifGenerator() {
       const canvas = document.createElement('canvas')
       outputCanvasRef.current = canvas
     }
-    outputCanvasRef.current.width = resolution
-    outputCanvasRef.current.height = resolution
+    outputCanvasRef.current.width = typeof resolution === 'number' ? resolution : defaultResolution;
+    outputCanvasRef.current.height = typeof resolution === 'number' ? resolution : defaultResolution;
   }, [resolution])
 
   useEffect(() => {
