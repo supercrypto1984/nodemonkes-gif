@@ -8,6 +8,7 @@ export default function Home() {
       padding: '20px',
       background: '#f5f5f5',
     }}>
+      <title>Nodemonkey GIF Generator</title>
       <GifGenerator />
     </main>
   )
