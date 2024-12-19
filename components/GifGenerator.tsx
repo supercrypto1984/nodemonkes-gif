@@ -315,7 +315,9 @@ export default function GifGenerator() {
         drawFrame(ctx,
           await loadImage(images.upper),
           await loadImage(images.lower),
-          progress, resolution, bgColor
+          progress,
+          typeof resolution === 'number' ? resolution : defaultResolution,
+          bgColor
         );
 
         const imageData = ctx.getImageData(0, 0, resolution, resolution);
