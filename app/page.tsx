@@ -1,3 +1,5 @@
+import GifGenerator from '@/components/GifGenerator'
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-900 to-black text-zinc-100 p-4 md:p-8">
