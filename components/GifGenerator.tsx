@@ -347,144 +347,128 @@ export default function GifGenerator() {
   }, [images, resolution, bgColor, speed, id, outputCanvasRef]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="bg-zinc-800/50 backdrop-blur-sm border border-zinc-700/50 rounded-lg shadow-xl p-4 md:p-6">
-        {/* Input Controls Section */}
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="idInput" className="block text-sm font-medium text-zinc-300">
-                ID or Inscription Number
-              </label>
-              <input
-                id="idInput"
-                type="text"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                placeholder="Enter ID or Inscription Number"
-                className="w-full px-4 py-2 bg-zinc-900/50 border border-zinc-700 rounded-md text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="resolutionInput" className="block text-sm font-medium text-zinc-300">
-                Resolution
-              </label>
-              <input
-                id="resolutionInput"
-                type="number"
-                value={resolution}
-                onChange={(e) => setResolution(Number(e.target.value))}
-                min={100}
-                max={1200}
-                step={100}
-                className="w-full px-4 py-2 bg-zinc-900/50 border border-zinc-700 rounded-md text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-              />
-            </div>
-          </div>
+    <div style={{
+      textAlign: 'center',
+      background: 'white',
+      padding: '20px',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      maxWidth: '1100px',
+      margin: '0 auto',
+    }}>
+      <div style={{ margin: '20px 0' }}>
+        <input
+          id="idInput"
+          type="text"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          placeholder="Enter ID or Inscription Number"
+          style={{
+            padding: '8px',
+            fontSize: '16px',
+            width: '200px',
+            marginRight: '10px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+          }}
+        />
+        <input
+          id="resolutionInput"
+          type="number"
+          value={resolution}
+          onChange={(e) => setResolution(Number(e.target.value))}
+          min={100}
+          max={1200}
+          step={100}
+          style={{
+            padding: '8px',
+            fontSize: '16px',
+            width: '100px',
+            marginRight: '10px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+          }}
+        />
+      </div>
 
-          {/* Background Controls */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-zinc-300">
-              Background Options
-            </label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => updateBackground('none')}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors"
-              >
-                No Background
-              </button>
-              <button
-                onClick={() => updateBackground('auto')}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors"
-              >
-                Auto Background
-              </button>
-              <button
-                onClick={() => updateBackground('custom')}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors"
-              >
-                Custom Background
-              </button>
-            </div>
-            {showColorPicker && (
-              <div className="mt-4 flex items-center gap-4">
-                <input
-                  type="color"
-                  value={bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
-                  className="w-20 h-10 rounded cursor-pointer"
-                />
-                <button
-                  onClick={() => setShowColorPicker(false)}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
-                >
-                  Confirm Color
-                </button>
-              </div>
-            )}
-          </div>
+      <BackgroundControls 
+        bgColor={bgColor} 
+        setBgColor={setBgColor} 
+        updateBackground={updateBackground}
+        showColorPicker={showColorPicker}
+        setShowColorPicker={setShowColorPicker}
+      />
 
-          {/* Speed Control */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-zinc-300">
-              Animation Speed: {speed.toFixed(1)}x
-            </label>
-            <input
-              type="range"
-              min={0.1}
-              max={5}
-              step={0.1}
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
+      <div style={{ margin: '10px 0' }}>
+        <input
+          type="range"
+          min={0.1}
+          max={5}
+          step={0.1}
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          style={{ width: '200px', marginRight: '10px' }}
+        />
+        <span>{speed.toFixed(1)}x</span>
+      </div>
 
-          {/* Generate GIF Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={generateGIF}
-              disabled={isGenerating || !images.upper || !images.lower}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-md transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isGenerating ? 'Generating...' : 'Save GIF'}
-            </button>
-          </div>
-        </div>
+      <button
+        onClick={generateGIF}
+        disabled={isGenerating || !images.upper || !images.lower}
+        style={{
+          marginTop: '10px',
+          padding: '8px 20px',
+          fontSize: '16px',
+          cursor: 'pointer',
+          background: '#2196F3',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          opacity: isGenerating || !images.upper || !images.lower ? 0.5 : 1,
+        }}
+      >
+        Save GIF
+      </button>
 
-        {/* Preview Section */}
-        <div className="mt-8">
-          <Preview 
-            canvasRef={canvasRef}
-            images={images}
-            bgColor={bgColor}
-            resolution={resolution}
-            speed={speed}
+      <Preview 
+        canvasRef={canvasRef}
+        images={images}
+        bgColor={bgColor}
+        resolution={resolution}
+        speed={speed}
+      />
+
+      {status && (
+        <div style={{
+          margin: '10px 0',
+          padding: '10px',
+          borderRadius: '4px',
+          textAlign: 'center',
+          background: isError ? '#ffebee' : '#e8f5e9',
+          color: isError ? '#c62828' : '#2e7d32',
+        }}>
+          {status}
+        </div>)}
+
+      {isGenerating && (
+        <div style={{
+          width: '80%',
+          margin: '10px auto',
+          height: '20px',
+          background: '#f0f0f0',
+          borderRadius: '10px',
+          overflow: 'hidden',
+        }}>
+          <div 
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: '#4CAF50',
+              transition: 'width 0.3s',
+            }}
           />
         </div>
-
-        {/* Status Messages */}
-        {status && (
-          <div className={`mt-4 p-4 rounded-md ${
-            isError 
-              ? 'bg-red-900/50 border border-red-700/50 text-red-200' 
-              : 'bg-green-900/50 border border-green-700/50 text-green-200'
-          }`}>
-            {status}
-          </div>
-        )}
-
-        {/* Progress Bar */}
-        {isGenerating && (
-          <div className="mt-4 w-full bg-zinc-700 rounded-full h-2 overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-purple-500 to-purple-700 transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }
@@ -569,3 +553,4 @@ function drawFrame(
 function easeInOutQuad(t: number): number {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
+
