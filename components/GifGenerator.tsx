@@ -102,7 +102,7 @@ const BASE_FRAME_DELAY = 1000 / 30; // Aiming for 30 fps
 
 export default function GifGenerator() {
   const [id, setId] = useState('')
-  const [resolution, setResolution] = useState<number | ''>(defaultResolution)
+  const [resolution, setResolution] = useState<number>(defaultResolution)
   const [bgColor, setBgColor] = useState('#ffffff')
   const [speed, setSpeed] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -125,8 +125,8 @@ export default function GifGenerator() {
       const canvas = document.createElement('canvas')
       outputCanvasRef.current = canvas
     }
-    outputCanvasRef.current.width = typeof resolution === 'number' ? resolution : defaultResolution;
-    outputCanvasRef.current.height = typeof resolution === 'number' ? resolution : defaultResolution;
+    outputCanvasRef.current.width = resolution;
+    outputCanvasRef.current.height = resolution;
   }, [resolution])
 
   useEffect(() => {
@@ -145,20 +145,6 @@ export default function GifGenerator() {
     };
   }, [id]);
 
-  useEffect(() => {
-    const handleResolutionChange = (e: Event) => {
-      const input = e.target as HTMLInputElement;
-      const newResolution = parseInt(input.value) || 600;
-      setResolution(newResolution);
-    };
-
-    const resolutionInput = document.getElementById('resolutionInput');
-    resolutionInput?.addEventListener('change', handleResolutionChange);
-
-    return () => {
-      resolutionInput?.removeEventListener('change', handleResolutionChange);
-    };
-  }, []);
 
   const loadMetadata = async () => {
     try {
@@ -288,8 +274,8 @@ export default function GifGenerator() {
       const gif = new GIF({
         workers: navigator.hardwareConcurrency > 1 ? 2 : 1,
         quality: 10,
-        width: typeof resolution === 'number' ? resolution : defaultResolution,
-        height: typeof resolution === 'number' ? resolution : defaultResolution,
+        width: resolution,
+        height: resolution,
         workerScript: workerUrl,
         dither: false,
         transparent: null,
@@ -316,7 +302,7 @@ export default function GifGenerator() {
           await loadImage(images.upper),
           await loadImage(images.lower),
           progress,
-          typeof resolution === 'number' ? resolution : defaultResolution,
+          resolution,
           bgColor
         );
 
@@ -379,29 +365,39 @@ export default function GifGenerator() {
           }}
         />
         <div style={{ margin: '20px 0' }}>
-          <label htmlFor="resolutionInput" style={{ marginRight: '10px', fontSize: '14px' }}>
-            Resolution (px):
+          <label style={{ marginRight: '10px', fontSize: '14px' }}>
+            Resolution: {resolution}px
           </label>
-          <input
-            id="resolutionInput"
-            type="number"
-            value={resolution}
-            onChange={(e) => {
-              const value = e.target.value;
-              setResolution(value === '' ? '' : Number(value));
-            }}
-            min={100}
-            max={1200}
-            step={100}
+          <button
+            onClick={() => setResolution(prev => Math.min(1200, prev + 100))}
             style={{
-              padding: '8px',
+              padding: '5px 10px',
               fontSize: '16px',
-              width: '100px',
-              marginRight: '10px',
-              border: '1px solid #ddd',
+              cursor: 'pointer',
+              background: '#4CAF50',
+              color: 'white',
+              border: 'none',
               borderRadius: '4px',
+              margin: '0 5px',
             }}
-          />
+          >
+            ▲
+          </button>
+          <button
+            onClick={() => setResolution(prev => Math.max(100, prev - 100))}
+            style={{
+              padding: '5px 10px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              background: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              margin: '0 5px',
+            }}
+          >
+            ▼
+          </button>
           <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
             Adjust the size of the generated GIF (100-1200 pixels)
           </div>
