@@ -8,12 +8,13 @@ interface PreviewProps {
   bgColor: string
   resolution: number
   speed: number
+  mode: 'normal' | 'santa'
 }
 
 const FRAME_COUNT = 36;
 const BASE_FRAME_DELAY = 1000 / 30;
 
-export default function Preview({ canvasRef, images, bgColor, resolution, speed }: PreviewProps) {
+export default function Preview({ canvasRef, images, bgColor, resolution, speed, mode }: PreviewProps) {
   const animationRef = useRef<number>()
   const upperImgRef = useRef<HTMLImageElement | null>(null)
   const lowerImgRef = useRef<HTMLImageElement | null>(null)
@@ -85,7 +86,8 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
             lowerImgRef.current,
             progressRef.current,
             resolution,
-            bgColor
+            bgColor,
+            mode
           )
           progressRef.current = (progressRef.current + 1 / FRAME_COUNT) % 1
           lastTimeRef.current = currentTime
@@ -102,7 +104,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed 
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [canvasRef, images, bgColor, resolution, speed])
+  }, [canvasRef, images, bgColor, resolution, speed, mode])
 
   return (
     <div style={{
@@ -141,7 +143,8 @@ function drawFrame(
   lowerImg: HTMLImageElement,
   progress: number,
   size: number,
-  bgColor: string
+  bgColor: string,
+  mode: 'normal' | 'santa'
 ) {
   const PARAMS = {
     rotationRange: 0.045,
