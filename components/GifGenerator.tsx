@@ -213,7 +213,7 @@ export default function GifGenerator() {
       upper: mode === 'normal' 
         ? `https://nodemonkes.4everland.store/upperbody/${imageId}.png`
         : `https://nodemonkes.4everland.store/santaupperbody/${imageId}.png`,
-      lower: `https://nodemonkes.4everland.store/lowerbody/${imageId}.png`
+      lower: `https://nodemonkes.4everland.store/santalowerbody/${imageId}.png`
     };
   };
 
