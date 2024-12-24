@@ -207,6 +207,16 @@ export default function GifGenerator() {
     setIsError(error)
   }
 
+  const getImageUrls = (imageId: number | null, mode: 'normal' | 'santa') => {
+    if (!imageId) return { upper: null, lower: null };
+    return {
+      upper: mode === 'normal' 
+        ? `https://nodemonkes.4everland.store/upperbody/${imageId}.png`
+        : `https://nodemonkes.4everland.store/santaupperbody/${imageId}.png`,
+      lower: `https://nodemonkes.4everland.store/lowerbody/${imageId}.png`
+    };
+  };
+
   const preview = async () => {
     if (!id) {
       showStatus('Please enter an ID or Inscription Number', true)
@@ -221,18 +231,13 @@ export default function GifGenerator() {
 
     showStatus('Loading images...')
     try {
-      setImages({
-        upper: mode === 'normal' 
-          ? `https://nodemonkes.4everland.store/upperbody/${imageId}.png`
-          : `https://nodemonkes.4everland.store/santaupperbody/${imageId}.png`,
-        lower: `https://nodemonkes.4everland.store/lowerbody/${imageId}.png`
-      })
+      setImages(getImageUrls(imageId, mode));
       
-      const foundMetadata = metadata.find((item: Metadata) => item.id === imageId)
+      const foundMetadata = metadata.find((item: Metadata) => item.id === imageId);
       if (foundMetadata) {
-        showStatus(`Preview ready (ID: ${imageId}, Inscription: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`)
+        showStatus(`Preview ready (ID: ${imageId}, Inscription: ${foundMetadata.inscription}, Body: ${foundMetadata.attributes.Body})`);
       } else {
-        showStatus('Preview ready')
+        showStatus('Preview ready');
       }
     } catch (error) {
       showStatus('Failed to load images', true)
@@ -359,7 +364,15 @@ export default function GifGenerator() {
     }}>
       <div style={{ marginBottom: '20px' }}> {/* Added mode selection buttons */}
         <button
-          onClick={() => setMode('normal')}
+          onClick={() => {
+            setMode('normal');
+            if (id) {
+              const imageId = getImageId(id);
+              if (imageId) {
+                setImages(getImageUrls(imageId, 'normal'));
+              }
+            }
+          }}
           style={{
             padding: '8px 20px',
             fontSize: '16px',
@@ -374,7 +387,15 @@ export default function GifGenerator() {
           Normal
         </button>
         <button
-          onClick={() => setMode('santa')}
+          onClick={() => {
+            setMode('santa');
+            if (id) {
+              const imageId = getImageId(id);
+              if (imageId) {
+                setImages(getImageUrls(imageId, 'santa'));
+              }
+            }
+          }}
           style={{
             padding: '8px 20px',
             fontSize: '16px',
