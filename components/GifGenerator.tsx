@@ -210,10 +210,8 @@ export default function GifGenerator() {
   const getImageUrls = (imageId: number | null, mode: 'normal' | 'santa') => {
     if (!imageId) return { upper: null, lower: null };
     return {
-      upper: mode === 'normal' 
-        ? `https://nodemonkes.4everland.store/upperbody/${imageId}.png`
-        : `https://nodemonkes.4everland.store/santaupperbody/${imageId}.png`,
-      lower: `https://nodemonkes.4everland.store/santalowerbody/${imageId}.png`
+      upper: `https://nodemonkes.4everland.store/${mode === 'normal' ? '' : 'santa'}upperbody/${imageId}.png`,
+      lower: `https://nodemonkes.4everland.store/${mode === 'normal' ? '' : 'santa'}lowerbody/${imageId}.png`
     };
   };
 
