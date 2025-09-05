@@ -150,36 +150,65 @@ export default function GifGenerator() {
   const loadMetadata = async () => {
     const metadataUrls = [
       "https://ipfs.4everland.io/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
-      // 备用URL
       "https://gateway.pinata.cloud/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
+      "https://cloudflare-ipfs.com/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
+      "https://ipfs.io/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
     ]
 
-    for (const url of metadataUrls) {
+    for (let i = 0; i < metadataUrls.length; i++) {
+      const url = metadataUrls[i]
       try {
-        showStatus("正在加载元数据...")
+        showStatus(`正在尝试加载元数据... (${i + 1}/${metadataUrls.length})`)
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超时
+
         const response = await fetch(url, {
+          signal: controller.signal,
           mode: "cors",
           headers: {
             Accept: "application/json",
+            "Cache-Control": "no-cache",
           },
         })
+
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
 
+        const contentType = response.headers.get("content-type")
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Response is not JSON")
+        }
+
         const data = await response.json()
+
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("Invalid metadata format")
+        }
+
         setMetadata(data)
         setMetadataLoaded(true)
-        showStatus(`元数据加载完成 (${data.length} 个NFT)`)
+        showStatus(`✅ 元数据加载成功！(${data.length} 个NFT)`)
         console.log("Metadata loading complete", data.length, "items")
         return
       } catch (error) {
         console.error(`Failed to load metadata from ${url}:`, error)
-        if (url === metadataUrls[metadataUrls.length - 1]) {
-          // 如果所有URL都失败了，使用离线模式
-          showStatus("无法加载元数据，切换到离线模式。你仍然可以尝试输入ID 1-10000", true)
+
+        if (i === metadataUrls.length - 1) {
+          // 所有URL都失败了，启用离线模式
+          showStatus("⚠️ 无法加载元数据，启用离线模式。你仍然可以尝试输入ID 1-10000", true)
           setMetadataLoaded(false)
+
+          // 添加重试按钮的提示
+          setTimeout(() => {
+            showStatus("💡 提示：你可以刷新页面重试，或直接输入ID进行测试", false)
+          }, 3000)
+        } else {
+          showStatus(`尝试备用服务器... (${i + 2}/${metadataUrls.length})`)
+          await new Promise((resolve) => setTimeout(resolve, 1000)) // 等待1秒后尝试下一个
         }
       }
     }
@@ -420,17 +449,36 @@ export default function GifGenerator() {
         margin: "0 auto",
       }}
     >
-      {/* 添加状态指示器 */}
+      {/* 添加状态指示器和重试按钮 */}
       <div
         style={{
           marginBottom: "20px",
-          padding: "10px",
+          padding: "15px",
           background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
-          borderRadius: "4px",
+          borderRadius: "8px",
           fontSize: "14px",
+          border: `2px solid ${metadataLoaded ? "#4caf50" : "#ff9800"}`,
         }}
       >
-        状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
+        <div style={{ marginBottom: "10px" }}>
+          状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
+        </div>
+        {!metadataLoaded && (
+          <button
+            onClick={loadMetadata}
+            style={{
+              padding: "6px 12px",
+              fontSize: "12px",
+              cursor: "pointer",
+              background: "#ff9800",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+            }}
+          >
+            🔄 重试加载元数据
+          </button>
+        )}
       </div>
 
       <div style={{ marginBottom: "20px" }}>
