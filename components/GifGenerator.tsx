@@ -149,10 +149,7 @@ export default function GifGenerator() {
 
   const loadMetadata = async () => {
     const metadataUrls = [
-      "https://ipfs.4everland.io/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
-      "https://gateway.pinata.cloud/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
-      "https://cloudflare-ipfs.com/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
-      "https://ipfs.io/ipfs/bafybeif4olufme52xak633cyzwv236crwfiqhztauoq3cw3fanx2myisyu",
+      "https://pub-350d575dd32645bb86c59594eb79162d.r2.dev/metadata.json",
     ]
 
     for (let i = 0; i < metadataUrls.length; i++) {
