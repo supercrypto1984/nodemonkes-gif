@@ -16,10 +16,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        # ✅ Update v3 to v4
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        # ✅ Update v3 to v4
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -30,6 +32,7 @@ jobs:
         run: npm run build
 
       - name: Upload artifact
+        # v2 is currently the latest for this action
         uses: actions/upload-pages-artifact@v2
         with:
           path: ./out
@@ -44,5 +47,5 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
+        # v2 is currently the latest for this action
         uses: actions/deploy-pages@v2
-
