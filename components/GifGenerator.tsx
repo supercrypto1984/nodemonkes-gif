@@ -148,65 +148,38 @@ export default function GifGenerator() {
   }, [id])
 
   const loadMetadata = async () => {
-    // ✅ 元数据地址
     const metadataUrls = [
       "https://metadata.138148178.xyz/metadata.json",
+      // 备用URL保持不变作为fallback
+      "https://nodemonkes.4everland.store/metadata.json",
     ]
 
-    for (let i = 0; i < metadataUrls.length; i++) {
-      const url = metadataUrls[i]
+    for (const url of metadataUrls) {
       try {
-        showStatus(`正在尝试加载元数据... (${i + 1}/${metadataUrls.length})`)
-
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超时
-
+        showStatus("正在加载元数据...")
         const response = await fetch(url, {
-          signal: controller.signal,
           mode: "cors",
           headers: {
             Accept: "application/json",
-            "Cache-Control": "no-cache",
           },
         })
-
-        clearTimeout(timeoutId)
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
 
-        const contentType = response.headers.get("content-type")
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Response is not JSON")
-        }
-
         const data = await response.json()
-
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error("Invalid metadata format")
-        }
-
         setMetadata(data)
         setMetadataLoaded(true)
-        showStatus(`✅ 元数据加载成功！(${data.length} 个NFT)`)
+        showStatus(`元数据加载完成 (${data.length} 个NFT)`)
         console.log("Metadata loading complete", data.length, "items")
         return
       } catch (error) {
         console.error(`Failed to load metadata from ${url}:`, error)
-
-        if (i === metadataUrls.length - 1) {
-          // 所有URL都失败了，启用离线模式
-          showStatus("⚠️ 无法加载元数据，启用离线模式。你仍然可以尝试输入ID 1-10000", true)
+        if (url === metadataUrls[metadataUrls.length - 1]) {
+          // 如果所有URL都失败了，使用离线模式
+          showStatus("无法加载元数据，切换到离线模式。你仍然可以尝试输入ID 1-10000", true)
           setMetadataLoaded(false)
-
-          // 添加重试按钮的提示
-          setTimeout(() => {
-            showStatus("💡 提示：你可以刷新页面重试，或直接输入ID进行测试", false)
-          }, 3000)
-        } else {
-          showStatus(`尝试备用服务器... (${i + 2}/${metadataUrls.length})`)
-          await new Promise((resolve) => setTimeout(resolve, 1000)) // 等待1秒后尝试下一个
         }
       }
     }
@@ -322,25 +295,16 @@ export default function GifGenerator() {
   const getImageUrls = (imageId: number | null, mode: "normal" | "santa") => {
     if (!imageId) return { upper: null, lower: null }
 
-    // ✅ 新增的配置对象，用于区分 Normal 和 Santa 模式的不同域名和路径
-    const config = {
-      normal: {
-        baseUrl: "https://nodemonkegif.138148178.xyz/",
-        upperPath: "upperbody/",
-        lowerPath: "lowerbody/",
-      },
-      santa: {
-        baseUrl: "https://santamonkes.138148178.xyz/santamonkes/",
-        upperPath: "santaupperbody/",
-        lowerPath: "santalowerbody/",
-      },
-    }
-
-    const currentConfig = config[mode]
-
-    return {
-      upper: `${currentConfig.baseUrl}${currentConfig.upperPath}${imageId}.png`,
-      lower: `${currentConfig.baseUrl}${currentConfig.lowerPath}${imageId}.png`,
+    if (mode === "santa") {
+      return {
+        upper: `https://santamonkes.138148178.xyz/santamonkes/santaupperbody/${imageId}.png`,
+        lower: `https://santamonkes.138148178.xyz/santamonkes/santalowerbody/${imageId}.png`,
+      }
+    } else {
+      return {
+        upper: `https://nodemonkegif.138148178.xyz/upperbody/${imageId}.png`,
+        lower: `https://nodemonkegif.138148178.xyz/lowerbody/${imageId}.png`,
+      }
     }
   }
 
@@ -411,7 +375,7 @@ export default function GifGenerator() {
         if (!outputCanvasRef.current) return
 
         const progress = i / FRAME_COUNT
-        drawFrame(ctx, await loadImage(images.upper!), await loadImage(images.lower!), progress, resolution, bgColor)
+        drawFrame(ctx, await loadImage(images.upper), await loadImage(images.lower), progress, resolution, bgColor)
 
         const imageData = ctx.getImageData(0, 0, resolution, resolution)
         reduceColorDepth(imageData.data)
@@ -456,36 +420,17 @@ export default function GifGenerator() {
         margin: "0 auto",
       }}
     >
-      {/* 添加状态指示器和重试按钮 */}
+      {/* 添加状态指示器 */}
       <div
         style={{
           marginBottom: "20px",
-          padding: "15px",
+          padding: "10px",
           background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
-          borderRadius: "8px",
+          borderRadius: "4px",
           fontSize: "14px",
-          border: `2px solid ${metadataLoaded ? "#4caf50" : "#ff9800"}`,
         }}
       >
-        <div style={{ marginBottom: "10px" }}>
-          状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
-        </div>
-        {!metadataLoaded && (
-          <button
-            onClick={loadMetadata}
-            style={{
-              padding: "6px 12px",
-              fontSize: "12px",
-              cursor: "pointer",
-              background: "#ff9800",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-            }}
-          >
-            🔄 重试加载元数据
-          </button>
-        )}
+        状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
       </div>
 
       <div style={{ marginBottom: "20px" }}>
