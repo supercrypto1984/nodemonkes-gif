@@ -29,15 +29,15 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 关键步骤 1：使用 actions/upload-pages-artifact@v2
-      # 确保它使用您的 build 目录 (./out)
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v2  # ❗ 切换回 Pages 专用的上传 Action
+      # ✅ 关键修复：直接使用 actions/upload-artifact@v4
+      - name: Upload Pages Artifact (v4)
+        uses: actions/upload-artifact@v4
         with:
-          path: ./out # 确保这个路径是您的构建输出目录
+          # 必须将 Artifact 名称设置为 'github-pages'，这是 Pages 部署 Action 默认查找的名称。
+          name: github-pages 
+          path: ./out # 确保这是你的构建输出目录
 
   deploy:
-    # 依赖于 build 任务
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -45,8 +45,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # 关键步骤 2：使用 actions/deploy-pages@v2
-      # 无需任何 'with:' 参数，因为它会自动查找并下载上一步上传的 Pages Artifact
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
