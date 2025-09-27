@@ -98,19 +98,31 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed,
   }, [canvasRef, images, bgColor, resolution, speed, mode])
 
   return (
-    <div className="flex justify-center mb-6">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-        <canvas
-          ref={canvasRef}
-          width={resolution}
-          height={resolution}
-          className="max-w-full h-auto border border-gray-200 rounded"
-          style={{ maxWidth: "600px", maxHeight: "600px" }}
-        />
-        {!images.upper && !images.lower && (
-          <div className="flex items-center justify-center h-96 text-gray-500">预览区域</div>
-        )}
-      </div>
+    <div
+      style={{
+        width: "600px",
+        height: "600px",
+        margin: "20px auto",
+        background: "#ffffff",
+        border: "2px dashed #ccc",
+        overflow: "hidden",
+        borderRadius: "4px",
+      }}
+    >
+      <canvas ref={canvasRef} width={resolution} height={resolution} style={{ maxWidth: "100%", height: "auto" }} />
+      {!images.upper && !images.lower && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            color: "#999",
+          }}
+        >
+          预览区域
+        </div>
+      )}
     </div>
   )
 }
