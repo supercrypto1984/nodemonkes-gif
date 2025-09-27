@@ -297,8 +297,8 @@ export default function GifGenerator() {
 
     if (mode === "santa") {
       return {
-        upper: `https://santamonkes.138148178.xyz/santamonkes/santaupperbody/${imageId}.png`,
-        lower: `https://santamonkes.138148178.xyz/santamonkes/santalowerbody/${imageId}.png`,
+        upper: `https://santamonkes.138148178.xyz/santaupperbody/${imageId}.png`,
+        lower: `https://santamonkes.138148178.xyz/santalowerbody/${imageId}.png`,
       }
     } else {
       return {
