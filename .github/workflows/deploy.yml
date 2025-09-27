@@ -44,19 +44,18 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # 步骤 2: 显式下载 Artifact (解决 404 错误)
+      # 步骤 2: 显式下载 Artifact 
       - name: Download Artifact
         uses: actions/download-artifact@v4 
         with:
-          # 下载上一步上传的 Artifact
           name: github-pages 
-          # 将文件下载到 ./artifact 目录
           path: ./artifact 
 
       # 步骤 3: 部署 Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        # ⭐️ 关键修复：升级到 V4 版本，以避免内部 API 错误
+        uses: actions/deploy-pages@v4 
         with:
           # 告诉部署 Action 文件位于下载目录中
           artifact_path: ./artifact
