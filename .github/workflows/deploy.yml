@@ -10,17 +10,29 @@ permissions:
   pages: write
   id-token: write
 
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        # ✅ Update v3 to v4
+        # 推荐使用最新的 v4 版本
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        # ✅ Update v3 to v4
+        # 推荐使用最新的 v4 版本
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -32,12 +44,16 @@ jobs:
         run: npm run build
 
       - name: Upload artifact
-        # v2 is currently the latest for this action
-        uses: actions/upload-pages-artifact@v2
+        # ✅ 关键修复：将 actions/upload-pages-artifact@v2 替换为 actions/upload-artifact@v4
+        # 这是为了绕过内部对 v1 弃用版本的依赖，确保使用最新的核心上传逻辑。
+        uses: actions/upload-artifact@v4
         with:
+          # 必须将 Artifact 名称设置为 'github-pages'，以便 actions/deploy-pages@v2 自动找到它。
+          name: github-pages
           path: ./out
 
   deploy:
+    # 依赖于 build 任务
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -47,5 +63,5 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        # v2 is currently the latest for this action
+        # v2 是最新的 Pages 部署 Action
         uses: actions/deploy-pages@v2
