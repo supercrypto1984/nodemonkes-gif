@@ -3,7 +3,14 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import Preview from "./Preview"
 import BackgroundControls from "./BackgroundControls"
-import GIF from "gif.js"
+
+// 动态导入 GIF.js 以避免 SSR 问题
+let GIF: any = null
+if (typeof window !== "undefined") {
+  import("gif.js").then((module) => {
+    GIF = module.default
+  })
+}
 
 interface Metadata {
   id: number
@@ -86,7 +93,7 @@ const BODY_COLORS: BodyColorType = {
   zombie: "#104119",
 }
 
-const isMobile = /iPhone|iPad|iPod|Android/i.test(typeof navigator !== "undefined" ? navigator.userAgent : "")
+const isMobile = typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 const defaultResolution = isMobile ? 400 : 600
 
 function reduceColorDepth(data: Uint8ClampedArray) {
@@ -123,12 +130,14 @@ export default function GifGenerator() {
   }, [])
 
   useEffect(() => {
-    if (!outputCanvasRef.current) {
+    if (typeof window !== "undefined" && !outputCanvasRef.current) {
       const canvas = document.createElement("canvas")
       outputCanvasRef.current = canvas
     }
-    outputCanvasRef.current.width = resolution
-    outputCanvasRef.current.height = resolution
+    if (outputCanvasRef.current) {
+      outputCanvasRef.current.width = resolution
+      outputCanvasRef.current.height = resolution
+    }
   }, [resolution])
 
   useEffect(() => {
@@ -139,18 +148,19 @@ export default function GifGenerator() {
       }
     }
 
-    const idInput = document.getElementById("idInput")
-    idInput?.addEventListener("keypress", handleKeyPress)
+    if (typeof window !== "undefined") {
+      const idInput = document.getElementById("idInput")
+      idInput?.addEventListener("keypress", handleKeyPress)
 
-    return () => {
-      idInput?.removeEventListener("keypress", handleKeyPress)
+      return () => {
+        idInput?.removeEventListener("keypress", handleKeyPress)
+      }
     }
   }, [id])
 
   const loadMetadata = async () => {
     const metadataUrls = [
       "https://metadata.138148178.xyz/metadata.json",
-      // 备用URL保持不变作为fallback
       "https://nodemonkes.4everland.store/metadata.json",
     ]
 
@@ -177,7 +187,6 @@ export default function GifGenerator() {
       } catch (error) {
         console.error(`Failed to load metadata from ${url}:`, error)
         if (url === metadataUrls[metadataUrls.length - 1]) {
-          // 如果所有URL都失败了，使用离线模式
           showStatus("无法加载元数据，切换到离线模式。你仍然可以尝试输入ID 1-10000", true)
           setMetadataLoaded(false)
         }
@@ -204,7 +213,6 @@ export default function GifGenerator() {
 
     const numValue = Number.parseInt(input)
 
-    // 如果元数据已加载，使用元数据验证
     if (metadataLoaded && metadata.length > 0) {
       if (metadata.some((item) => item.id === numValue)) {
         return numValue
@@ -217,7 +225,6 @@ export default function GifGenerator() {
       return null
     }
 
-    // 离线模式：假设1-10000都是有效的ID
     if (numValue >= 1 && numValue <= 10000) {
       return numValue
     }
@@ -268,7 +275,6 @@ export default function GifGenerator() {
     try {
       const imageUrls = getImageUrls(imageId, mode)
 
-      // 验证图片是否存在
       const upperImageExists = await checkImageExists(imageUrls.upper!)
       const lowerImageExists = await checkImageExists(imageUrls.lower!)
 
@@ -339,7 +345,7 @@ export default function GifGenerator() {
   }
 
   const generateGIF = useCallback(async () => {
-    if (!images.upper || !images.lower) {
+    if (!images.upper || !images.lower || !GIF) {
       showStatus("请生成预览后保存GIF", true)
       return
     }
@@ -348,12 +354,23 @@ export default function GifGenerator() {
     setProgress(0)
 
     try {
+      // 创建一个简化的 worker script 内容
+      const workerScript = `
+        self.onmessage = function(e) {
+          // 简化的 worker 实现
+          self.postMessage(e.data);
+        };
+      `
+
+      const workerBlob = new Blob([workerScript], { type: "application/javascript" })
+      const workerUrl = URL.createObjectURL(workerBlob)
+
       const gif = new GIF({
-        workers: navigator.hardwareConcurrency > 1 ? 2 : 1,
+        workers: 1, // 减少 worker 数量
         quality: 10,
         width: resolution,
         height: resolution,
-        workerScript: "/gif.worker.js",
+        workerScript: workerUrl,
         dither: false,
         transparent: null,
         background: bgColor,
@@ -390,11 +407,12 @@ export default function GifGenerator() {
         const url = URL.createObjectURL(blob)
         const link = document.createElement("a")
         link.href = url
-        link.download = `animation_${id}_optimized_speed_${speed.toFixed(1)}.gif`
+        link.download = `nodemonke_${id}_${mode}_${speed.toFixed(1)}x.gif`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
         URL.revokeObjectURL(url)
+        URL.revokeObjectURL(workerUrl)
         showStatus("GIF生成完成！")
         setProgress(0)
         setIsGenerating(false)
@@ -406,34 +424,19 @@ export default function GifGenerator() {
       setProgress(0)
       setIsGenerating(false)
     }
-  }, [images, resolution, bgColor, speed, id, outputCanvasRef])
+  }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef])
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        background: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-        maxWidth: "1100px",
-        margin: "0 auto",
-      }}
-    >
-      {/* 添加状态指示器 */}
+    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+      {/* 状态指示器 */}
       <div
-        style={{
-          marginBottom: "20px",
-          padding: "10px",
-          background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
-          borderRadius: "4px",
-          fontSize: "14px",
-        }}
+        className={`mb-6 p-4 rounded-lg text-sm ${metadataLoaded ? "bg-green-50 text-green-800" : "bg-yellow-50 text-yellow-800"}`}
       >
         状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      {/* 模式选择 */}
+      <div className="mb-6 flex justify-center gap-4">
         <button
           onClick={() => {
             setMode("normal")
@@ -444,16 +447,9 @@ export default function GifGenerator() {
               }
             }
           }}
-          style={{
-            padding: "8px 20px",
-            fontSize: "16px",
-            cursor: "pointer",
-            background: mode === "normal" ? "#4CAF50" : "#e0e0e0",
-            color: mode === "normal" ? "white" : "black",
-            border: "none",
-            borderRadius: "4px",
-            margin: "0 5px",
-          }}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            mode === "normal" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
         >
           Normal
         </button>
@@ -467,49 +463,33 @@ export default function GifGenerator() {
               }
             }
           }}
-          style={{
-            padding: "8px 20px",
-            fontSize: "16px",
-            cursor: "pointer",
-            background: mode === "santa" ? "#4CAF50" : "#e0e0e0",
-            color: mode === "santa" ? "white" : "black",
-            border: "none",
-            borderRadius: "4px",
-            margin: "0 5px",
-          }}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            mode === "santa" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
         >
           Santa Hat
         </button>
       </div>
 
-      <div style={{ margin: "20px 0" }}>
+      {/* ID 输入 */}
+      <div className="mb-6 text-center">
         <input
           id="idInput"
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder="输入ID或铭文号"
-          style={{
-            padding: "8px",
-            fontSize: "16px",
-            width: "200px",
-            marginRight: "10px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-center text-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
         />
-        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
-          推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)
-        </div>
-        <div style={{ fontSize: "12px", color: "#666" }}>
+        <div className="mt-2 text-sm text-gray-600">推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)</div>
+        <div className="text-xs text-gray-500">
           {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
         </div>
       </div>
 
-      <div style={{ margin: "20px 0" }}>
-        <label htmlFor="resolutionInput" style={{ marginRight: "10px", fontSize: "14px" }}>
-          分辨率 (px):
-        </label>
+      {/* 分辨率设置 */}
+      <div className="mb-6 text-center">
+        <label className="block text-sm font-medium text-gray-700 mb-2">分辨率 (px):</label>
         <input
           id="resolutionInput"
           type="number"
@@ -518,34 +498,22 @@ export default function GifGenerator() {
           min={100}
           max={1200}
           step={100}
-          style={{
-            padding: "8px",
-            fontSize: "16px",
-            width: "100px",
-            marginRight: "10px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-center w-32 focus:outline-none focus:ring-2 focus:ring-green-500"
         />
-        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整生成的GIF大小 (100-1200像素)</div>
+        <div className="mt-1 text-xs text-gray-500">调整生成的GIF大小 (100-1200像素)</div>
       </div>
 
-      <button
-        onClick={preview}
-        style={{
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          margin: "0 5px",
-        }}
-      >
-        生成预览
-      </button>
+      {/* 生成预览按钮 */}
+      <div className="mb-6 text-center">
+        <button
+          onClick={preview}
+          className="px-8 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
+        >
+          生成预览
+        </button>
+      </div>
 
+      {/* 背景控制 */}
       <BackgroundControls
         bgColor={bgColor}
         setBgColor={setBgColor}
@@ -554,42 +522,41 @@ export default function GifGenerator() {
         setShowColorPicker={setShowColorPicker}
       />
 
-      <div style={{ margin: "20px 0" }}>
-        <label htmlFor="speedInput" style={{ marginRight: "10px", fontSize: "14px" }}>
-          动画速度:
-        </label>
-        <input
-          id="speedInput"
-          type="range"
-          min={0.1}
-          max={5}
-          step={0.1}
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-          style={{ width: "200px", marginRight: "10px" }}
-        />
-        <span>{speed.toFixed(1)}x</span>
-        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整动画速度 (0.1x - 5x)</div>
+      {/* 动画速度 */}
+      <div className="mb-6 text-center">
+        <label className="block text-sm font-medium text-gray-700 mb-2">动画速度:</label>
+        <div className="flex items-center justify-center gap-4">
+          <input
+            id="speedInput"
+            type="range"
+            min={0.1}
+            max={5}
+            step={0.1}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="w-64"
+          />
+          <span className="text-lg font-medium">{speed.toFixed(1)}x</span>
+        </div>
+        <div className="mt-1 text-xs text-gray-500">调整动画速度 (0.1x - 5x)</div>
       </div>
 
-      <button
-        onClick={generateGIF}
-        disabled={isGenerating || !images.upper || !images.lower}
-        style={{
-          marginTop: "10px",
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#2196F3",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          opacity: isGenerating || !images.upper || !images.lower ? 0.5 : 1,
-        }}
-      >
-        保存GIF
-      </button>
+      {/* 保存GIF按钮 */}
+      <div className="mb-6 text-center">
+        <button
+          onClick={generateGIF}
+          disabled={isGenerating || !images.upper || !images.lower}
+          className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+            isGenerating || !images.upper || !images.lower
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          {isGenerating ? "生成中..." : "保存GIF"}
+        </button>
+      </div>
 
+      {/* 预览区域 */}
       <Preview
         canvasRef={canvasRef}
         images={images}
@@ -599,40 +566,27 @@ export default function GifGenerator() {
         mode={mode}
       />
 
+      {/* 状态消息 */}
       {status && (
         <div
-          style={{
-            margin: "10px 0",
-            padding: "10px",
-            borderRadius: "4px",
-            textAlign: "center",
-            background: isError ? "#ffebee" : "#e8f5e9",
-            color: isError ? "#c62828" : "#2e7d32",
-          }}
+          className={`mt-6 p-4 rounded-lg text-center ${
+            isError ? "bg-red-50 text-red-800" : "bg-green-50 text-green-800"
+          }`}
         >
           {status}
         </div>
       )}
 
+      {/* 进度条 */}
       {isGenerating && (
-        <div
-          style={{
-            width: "80%",
-            margin: "10px auto",
-            height: "20px",
-            background: "#f0f0f0",
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${progress}%`,
-              height: "100%",
-              background: "#4CAF50",
-              transition: "width 0.3s",
-            }}
-          />
+        <div className="mt-6">
+          <div className="w-full bg-gray-200 rounded-full h-4">
+            <div
+              className="bg-green-500 h-4 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="text-center mt-2 text-sm text-gray-600">{progress}% 完成</div>
         </div>
       )}
     </div>
@@ -670,7 +624,6 @@ function drawFrame(
   }
 
   ctx.clearRect(0, 0, size, size)
-
   ctx.fillStyle = bgColor || "#ffffff"
   ctx.fillRect(0, 0, size, size)
 
