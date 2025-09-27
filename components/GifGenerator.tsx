@@ -3,14 +3,10 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import Preview from "./Preview"
 import BackgroundControls from "./BackgroundControls"
+import ClientWrapper from "./ClientWrapper"
 
 // 动态导入 GIF.js 以避免 SSR 问题
 let GIF: any = null
-if (typeof window !== "undefined") {
-  import("gif.js").then((module) => {
-    GIF = module.default
-  })
-}
 
 interface Metadata {
   id: number
@@ -107,7 +103,7 @@ function reduceColorDepth(data: Uint8ClampedArray) {
 const FRAME_COUNT = 48
 const BASE_FRAME_DELAY = 1000 / 30
 
-export default function GifGenerator() {
+function GifGeneratorContent() {
   const [id, setId] = useState("")
   const [resolution, setResolution] = useState(defaultResolution)
   const [bgColor, setBgColor] = useState("#ffffff")
@@ -121,9 +117,24 @@ export default function GifGenerator() {
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [mode, setMode] = useState<"normal" | "santa">("normal")
   const [metadataLoaded, setMetadataLoaded] = useState(false)
+  const [gifLoaded, setGifLoaded] = useState(false)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const outputCanvasRef = useRef<HTMLCanvasElement | null>(null)
+
+  useEffect(() => {
+    // 动态加载 GIF.js
+    const loadGif = async () => {
+      try {
+        const module = await import("gif.js")
+        GIF = module.default
+        setGifLoaded(true)
+      } catch (error) {
+        console.error("Failed to load GIF.js:", error)
+      }
+    }
+    loadGif()
+  }, [])
 
   useEffect(() => {
     loadMetadata()
@@ -345,8 +356,8 @@ export default function GifGenerator() {
   }
 
   const generateGIF = useCallback(async () => {
-    if (!images.upper || !images.lower || !GIF) {
-      showStatus("请生成预览后保存GIF", true)
+    if (!images.upper || !images.lower || !GIF || !gifLoaded) {
+      showStatus("GIF库未加载完成，请稍后再试", true)
       return
     }
 
@@ -354,23 +365,11 @@ export default function GifGenerator() {
     setProgress(0)
 
     try {
-      // 创建一个简化的 worker script 内容
-      const workerScript = `
-        self.onmessage = function(e) {
-          // 简化的 worker 实现
-          self.postMessage(e.data);
-        };
-      `
-
-      const workerBlob = new Blob([workerScript], { type: "application/javascript" })
-      const workerUrl = URL.createObjectURL(workerBlob)
-
       const gif = new GIF({
-        workers: 1, // 减少 worker 数量
+        workers: 1,
         quality: 10,
         width: resolution,
         height: resolution,
-        workerScript: workerUrl,
         dither: false,
         transparent: null,
         background: bgColor,
@@ -412,7 +411,6 @@ export default function GifGenerator() {
         link.click()
         document.body.removeChild(link)
         URL.revokeObjectURL(url)
-        URL.revokeObjectURL(workerUrl)
         showStatus("GIF生成完成！")
         setProgress(0)
         setIsGenerating(false)
@@ -424,7 +422,7 @@ export default function GifGenerator() {
       setProgress(0)
       setIsGenerating(false)
     }
-  }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef])
+  }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
@@ -433,6 +431,7 @@ export default function GifGenerator() {
         className={`mb-6 p-4 rounded-lg text-sm ${metadataLoaded ? "bg-green-50 text-green-800" : "bg-yellow-50 text-yellow-800"}`}
       >
         状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
+        {!gifLoaded && <span className="ml-2">| 🔄 GIF库加载中...</span>}
       </div>
 
       {/* 模式选择 */}
@@ -545,9 +544,9 @@ export default function GifGenerator() {
       <div className="mb-6 text-center">
         <button
           onClick={generateGIF}
-          disabled={isGenerating || !images.upper || !images.lower}
+          disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
           className={`px-8 py-3 rounded-lg font-medium transition-colors ${
-            isGenerating || !images.upper || !images.lower
+            isGenerating || !images.upper || !images.lower || !gifLoaded
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
@@ -590,6 +589,14 @@ export default function GifGenerator() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function GifGenerator() {
+  return (
+    <ClientWrapper>
+      <GifGeneratorContent />
+    </ClientWrapper>
   )
 }
 
