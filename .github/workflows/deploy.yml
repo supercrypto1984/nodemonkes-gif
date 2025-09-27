@@ -16,11 +16,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        # 推荐使用最新的 v4 版本
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        # 推荐使用最新的 v4 版本
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -31,14 +29,12 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload artifact
-        # ✅ 关键修复：将 actions/upload-pages-artifact@v2 替换为 actions/upload-artifact@v4
-        # 这是为了绕过内部对 v1 弃用版本的依赖，确保使用最新的核心上传逻辑。
-        uses: actions/upload-artifact@v4
+      # 关键步骤 1：使用 actions/upload-pages-artifact@v2
+      # 确保它使用您的 build 目录 (./out)
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v2  # ❗ 切换回 Pages 专用的上传 Action
         with:
-          # 必须将 Artifact 名称设置为 'github-pages'，以便 actions/deploy-pages@v2 自动找到它。
-          name: github-pages
-          path: ./out
+          path: ./out # 确保这个路径是您的构建输出目录
 
   deploy:
     # 依赖于 build 任务
@@ -49,7 +45,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      # 关键步骤 2：使用 actions/deploy-pages@v2
+      # 无需任何 'with:' 参数，因为它会自动查找并下载上一步上传的 Pages Artifact
       - name: Deploy to GitHub Pages
         id: deployment
-        # v2 是最新的 Pages 部署 Action
         uses: actions/deploy-pages@v2
