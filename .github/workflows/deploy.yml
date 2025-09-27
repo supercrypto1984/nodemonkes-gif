@@ -28,7 +28,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # ⭐️ 关键修复步骤: 清理 Next.js 缓存和符号链接
+      # ⭐️ 关键修复步骤: 清理 Next.js 缓存和符号链接 (不再需要)
       - name: Clean Artifact for Pages Deployment
         run: |
           # Next.js 在构建后会将缓存和一些内部文件留在 distDir 中，
@@ -39,11 +39,25 @@ jobs:
           # 确保删除所有 .map 文件，它们在 Pages 部署中也是不必要的
           find ./out -name '*.map' -delete
 
+      # 🌟 最终修复步骤: 使用 rsync 强制解除所有符号链接
+      - name: Resolve Symlinks and Prepare Artifact
+        id: prepare_artifact
+        run: |
+          CLEAN_DIR="pages_artifact"
+          mkdir -p $CLEAN_DIR
+          # 使用 rsync 复制文件，同时使用 --copy-links 选项将所有符号链接转换为实际文件
+          echo "Resolving symlinks in ./out and copying to $CLEAN_DIR..."
+          rsync -av --delete --copy-links ./out/ $CLEAN_DIR/
+          
+          # 设置输出路径为新的清洁目录
+          echo "artifact_path=$CLEAN_DIR" >> $GITHUB_OUTPUT
+
       - name: Upload Pages Artifact (v4)
         uses: actions/upload-artifact@v4
         with:
           name: github-pages 
-          path: ./out 
+          # ⬆️ 上传新的、已清理的目录
+          path: ${{ steps.prepare_artifact.outputs.artifact_path }}
 
   deploy:
     needs: build
