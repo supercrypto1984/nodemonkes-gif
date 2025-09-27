@@ -1,12 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  images: {
-    unoptimized: true,
-  },
-  basePath: '/nodemonkes-gif',
-  assetPrefix: '/nodemonkes-gif/',
-}
+  distDir: 'out',
+  basePath: '/nodemonkes-gif', 
+};
 
-module.exports = nextConfig
-
+module.exports = nextConfig;
