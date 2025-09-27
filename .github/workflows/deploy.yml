@@ -28,13 +28,22 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 步骤 1: 上传 Artifact (解决 v1 弃用错误)
+      # ⭐️ 关键修复步骤: 清理 Next.js 缓存和符号链接
+      - name: Clean Artifact for Pages Deployment
+        run: |
+          # Next.js 在构建后会将缓存和一些内部文件留在 distDir 中，
+          # 其中可能包含符号链接，Pages 部署服务会拒绝这些链接。
+          # 确保删除 .next/cache 目录以排除所有潜在的链接问题。
+          echo "Removing cache files from ./out directory..."
+          rm -rf ./out/.next/cache
+          # 确保删除所有 .map 文件，它们在 Pages 部署中也是不必要的
+          find ./out -name '*.map' -delete
+
       - name: Upload Pages Artifact (v4)
         uses: actions/upload-artifact@v4
         with:
-          # 必须将 Artifact 名称设置为 'github-pages'
           name: github-pages 
-          path: ./out # 确保这是您的构建输出目录
+          path: ./out 
 
   deploy:
     needs: build
@@ -44,11 +53,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # ⚠️ 移除显式下载 Artifact 步骤，让 deploy-pages 自动查找
-
-      # 步骤 3: 部署 Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        # 强制使用 V4 版本
-        uses: actions/deploy-pages@v4 
-        # ⚠️ 移除 artifact_path，让 Action 自动查找名为 'github-pages' 的 Artifact
+        uses: actions/deploy-pages@v4
