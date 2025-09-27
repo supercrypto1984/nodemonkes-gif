@@ -16,39 +16,77 @@ export default function BackgroundControls({
   setShowColorPicker,
 }: BackgroundControlsProps) {
   return (
-    <div className="mb-6 text-center">
-      <div className="flex justify-center gap-4 mb-4">
-        <button
-          onClick={() => updateBackground("none")}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-        >
-          无背景
-        </button>
-        <button
-          onClick={() => updateBackground("auto")}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-        >
-          自动背景
-        </button>
-        <button
-          onClick={() => updateBackground("custom")}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-        >
-          自定义背景
-        </button>
-      </div>
-
+    <div style={{ margin: "10px 0" }}>
+      <button
+        onClick={() => updateBackground("none")}
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
+      >
+        无背景
+      </button>
+      <button
+        onClick={() => updateBackground("auto")}
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
+      >
+        自动背景
+      </button>
+      <button
+        onClick={() => updateBackground("custom")}
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
+      >
+        自定义背景
+      </button>
       {showColorPicker && (
-        <div className="flex justify-center items-center gap-4">
+        <div style={{ margin: "10px 0" }}>
           <input
             type="color"
             value={bgColor}
             onChange={(e) => setBgColor(e.target.value)}
-            className="w-16 h-10 border border-gray-300 rounded cursor-pointer"
+            style={{
+              width: "100px",
+              padding: "5px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
           />
           <button
             onClick={() => setShowColorPicker(false)}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            style={{
+              padding: "8px 20px",
+              fontSize: "16px",
+              cursor: "pointer",
+              background: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              margin: "0 5px",
+            }}
           >
             确认颜色
           </button>
