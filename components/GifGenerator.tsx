@@ -148,8 +148,9 @@ export default function GifGenerator() {
   }, [id])
 
   const loadMetadata = async () => {
+    // ✅ 元数据地址
     const metadataUrls = [
-      "https://pub-350d575dd32645bb86c59594eb79162d.r2.dev/metadata.json",
+      "https://metadata.138148178.xyz/metadata.json",
     ]
 
     for (let i = 0; i < metadataUrls.length; i++) {
@@ -321,16 +322,25 @@ export default function GifGenerator() {
   const getImageUrls = (imageId: number | null, mode: "normal" | "santa") => {
     if (!imageId) return { upper: null, lower: null }
 
-    // 尝试新的IPFS地址，如果失败则回退到原地址
-    const baseUrls = [
-      "https://ipfs.4everland.io/ipfs/", // 新的IPFS基础URL
-      "https://nodemonkes.4everland.store/", // 原来的URL作为备用
-    ]
+    // ✅ 新增的配置对象，用于区分 Normal 和 Santa 模式的不同域名和路径
+    const config = {
+      normal: {
+        baseUrl: "https://nodemonkegif.138148178.xyz/",
+        upperPath: "upperbody/",
+        lowerPath: "lowerbody/",
+      },
+      santa: {
+        baseUrl: "https://santamonkes.138148178.xyz/santamonkes/",
+        upperPath: "santaupperbody/",
+        lowerPath: "santalowerbody/",
+      },
+    }
 
-    // 先尝试IPFS地址
+    const currentConfig = config[mode]
+
     return {
-      upper: `${baseUrls[0]}${mode === "normal" ? "" : "santa"}upperbody/${imageId}.png`,
-      lower: `${baseUrls[0]}${mode === "normal" ? "" : "santa"}lowerbody/${imageId}.png`,
+      upper: `${currentConfig.baseUrl}${currentConfig.upperPath}${imageId}.png`,
+      lower: `${currentConfig.baseUrl}${currentConfig.lowerPath}${imageId}.png`,
     }
   }
 
@@ -401,7 +411,7 @@ export default function GifGenerator() {
         if (!outputCanvasRef.current) return
 
         const progress = i / FRAME_COUNT
-        drawFrame(ctx, await loadImage(images.upper), await loadImage(images.lower), progress, resolution, bgColor)
+        drawFrame(ctx, await loadImage(images.upper!), await loadImage(images.lower!), progress, resolution, bgColor)
 
         const imageData = ctx.getImageData(0, 0, resolution, resolution)
         reduceColorDepth(imageData.data)
