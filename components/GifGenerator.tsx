@@ -313,9 +313,10 @@ function GifGeneratorContent() {
     if (!imageId) return { upper: null, lower: null }
 
     if (mode === "santa") {
+      // 使用公开的 R2 URL 作为主要地址，自定义域作为备用
       return {
-        upper: `https://santamonkes.138148178.xyz/santaupperbody/${imageId}.png`,
-        lower: `https://santamonkes.138148178.xyz/santalowerbody/${imageId}.png`,
+        upper: `https://pub-048d93bb0a5a448783aecb63c784ccbf.r2.dev/santaupperbody/${imageId}.png`,
+        lower: `https://pub-048d93bb0a5a448783aecb63c784ccbf.r2.dev/santalowerbody/${imageId}.png`,
       }
     } else {
       return {
@@ -425,17 +426,33 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+    <div
+      style={{
+        textAlign: "center",
+        background: "white",
+        padding: "20px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        maxWidth: "1100px",
+        margin: "0 auto",
+      }}
+    >
       {/* 状态指示器 */}
       <div
-        className={`mb-6 p-4 rounded-lg text-sm ${metadataLoaded ? "bg-green-50 text-green-800" : "bg-yellow-50 text-yellow-800"}`}
+        style={{
+          marginBottom: "20px",
+          padding: "10px",
+          background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
+          borderRadius: "4px",
+          fontSize: "14px",
+        }}
       >
         状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
-        {!gifLoaded && <span className="ml-2">| 🔄 GIF库加载中...</span>}
+        {!gifLoaded && <span style={{ marginLeft: "10px" }}>| 🔄 GIF库加载中...</span>}
       </div>
 
       {/* 模式选择 */}
-      <div className="mb-6 flex justify-center gap-4">
+      <div style={{ marginBottom: "20px" }}>
         <button
           onClick={() => {
             setMode("normal")
@@ -446,9 +463,16 @@ function GifGeneratorContent() {
               }
             }
           }}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            mode === "normal" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          style={{
+            padding: "8px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+            background: mode === "normal" ? "#4CAF50" : "#e0e0e0",
+            color: mode === "normal" ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            margin: "0 5px",
+          }}
         >
           Normal
         </button>
@@ -462,33 +486,51 @@ function GifGeneratorContent() {
               }
             }
           }}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            mode === "santa" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          style={{
+            padding: "8px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+            background: mode === "santa" ? "#4CAF50" : "#e0e0e0",
+            color: mode === "santa" ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            margin: "0 5px",
+          }}
         >
-          Santa Hat
+          🎅 Santa Hat
         </button>
       </div>
 
       {/* ID 输入 */}
-      <div className="mb-6 text-center">
+      <div style={{ margin: "20px 0" }}>
         <input
           id="idInput"
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder="输入ID或铭文号"
-          className="px-4 py-2 border border-gray-300 rounded-lg text-center text-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
+          style={{
+            padding: "8px",
+            fontSize: "16px",
+            width: "200px",
+            marginRight: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
         />
-        <div className="mt-2 text-sm text-gray-600">推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)</div>
-        <div className="text-xs text-gray-500">
+        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
+          推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)
+        </div>
+        <div style={{ fontSize: "12px", color: "#666" }}>
           {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
         </div>
       </div>
 
       {/* 分辨率设置 */}
-      <div className="mb-6 text-center">
-        <label className="block text-sm font-medium text-gray-700 mb-2">分辨率 (px):</label>
+      <div style={{ margin: "20px 0" }}>
+        <label htmlFor="resolutionInput" style={{ marginRight: "10px", fontSize: "14px" }}>
+          分辨率 (px):
+        </label>
         <input
           id="resolutionInput"
           type="number"
@@ -497,20 +539,34 @@ function GifGeneratorContent() {
           min={100}
           max={1200}
           step={100}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-center w-32 focus:outline-none focus:ring-2 focus:ring-green-500"
+          style={{
+            padding: "8px",
+            fontSize: "16px",
+            width: "100px",
+            marginRight: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
         />
-        <div className="mt-1 text-xs text-gray-500">调整生成的GIF大小 (100-1200像素)</div>
+        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整生成的GIF大小 (100-1200像素)</div>
       </div>
 
       {/* 生成预览按钮 */}
-      <div className="mb-6 text-center">
-        <button
-          onClick={preview}
-          className="px-8 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
-        >
-          生成预览
-        </button>
-      </div>
+      <button
+        onClick={preview}
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
+      >
+        生成预览
+      </button>
 
       {/* 背景控制 */}
       <BackgroundControls
@@ -522,38 +578,42 @@ function GifGeneratorContent() {
       />
 
       {/* 动画速度 */}
-      <div className="mb-6 text-center">
-        <label className="block text-sm font-medium text-gray-700 mb-2">动画速度:</label>
-        <div className="flex items-center justify-center gap-4">
-          <input
-            id="speedInput"
-            type="range"
-            min={0.1}
-            max={5}
-            step={0.1}
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="w-64"
-          />
-          <span className="text-lg font-medium">{speed.toFixed(1)}x</span>
-        </div>
-        <div className="mt-1 text-xs text-gray-500">调整动画速度 (0.1x - 5x)</div>
+      <div style={{ margin: "20px 0" }}>
+        <label htmlFor="speedInput" style={{ marginRight: "10px", fontSize: "14px" }}>
+          动画速度:
+        </label>
+        <input
+          id="speedInput"
+          type="range"
+          min={0.1}
+          max={5}
+          step={0.1}
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          style={{ width: "200px", marginRight: "10px" }}
+        />
+        <span>{speed.toFixed(1)}x</span>
+        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整动画速度 (0.1x - 5x)</div>
       </div>
 
       {/* 保存GIF按钮 */}
-      <div className="mb-6 text-center">
-        <button
-          onClick={generateGIF}
-          disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
-          className={`px-8 py-3 rounded-lg font-medium transition-colors ${
-            isGenerating || !images.upper || !images.lower || !gifLoaded
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-        >
-          {isGenerating ? "生成中..." : "保存GIF"}
-        </button>
-      </div>
+      <button
+        onClick={generateGIF}
+        disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
+        style={{
+          marginTop: "10px",
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#2196F3",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          opacity: isGenerating || !images.upper || !images.lower || !gifLoaded ? 0.5 : 1,
+        }}
+      >
+        {isGenerating ? "生成中..." : "保存GIF"}
+      </button>
 
       {/* 预览区域 */}
       <Preview
@@ -568,9 +628,14 @@ function GifGeneratorContent() {
       {/* 状态消息 */}
       {status && (
         <div
-          className={`mt-6 p-4 rounded-lg text-center ${
-            isError ? "bg-red-50 text-red-800" : "bg-green-50 text-green-800"
-          }`}
+          style={{
+            margin: "10px 0",
+            padding: "10px",
+            borderRadius: "4px",
+            textAlign: "center",
+            background: isError ? "#ffebee" : "#e8f5e9",
+            color: isError ? "#c62828" : "#2e7d32",
+          }}
         >
           {status}
         </div>
@@ -578,14 +643,24 @@ function GifGeneratorContent() {
 
       {/* 进度条 */}
       {isGenerating && (
-        <div className="mt-6">
-          <div className="w-full bg-gray-200 rounded-full h-4">
-            <div
-              className="bg-green-500 h-4 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="text-center mt-2 text-sm text-gray-600">{progress}% 完成</div>
+        <div
+          style={{
+            width: "80%",
+            margin: "10px auto",
+            height: "20px",
+            background: "#f0f0f0",
+            borderRadius: "10px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: "100%",
+              background: "#4CAF50",
+              transition: "width 0.3s",
+            }}
+          />
         </div>
       )}
     </div>
