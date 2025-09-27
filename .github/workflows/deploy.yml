@@ -10,62 +10,43 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build project
+      - name: Build with Next.js
         run: npm run build
 
-      # ⭐️ 关键修复步骤: 清理 Next.js 缓存和符号链接 (不再需要)
-      - name: Clean Artifact for Pages Deployment
-        run: |
-          # Next.js 在构建后会将缓存和一些内部文件留在 distDir 中，
-          # 其中可能包含符号链接，Pages 部署服务会拒绝这些链接。
-          # 确保删除 .next/cache 目录以排除所有潜在的链接问题。
-          echo "Removing cache files from ./out directory..."
-          rm -rf ./out/.next/cache
-          # 确保删除所有 .map 文件，它们在 Pages 部署中也是不必要的
-          find ./out -name '*.map' -delete
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      # 🌟 最终修复步骤: 使用 rsync 强制解除所有符号链接
-      - name: Resolve Symlinks and Prepare Artifact
-        id: prepare_artifact
-        run: |
-          CLEAN_DIR="pages_artifact"
-          mkdir -p $CLEAN_DIR
-          # 使用 rsync 复制文件，同时使用 --copy-links 选项将所有符号链接转换为实际文件
-          echo "Resolving symlinks in ./out and copying to $CLEAN_DIR..."
-          rsync -av --delete --copy-links ./out/ $CLEAN_DIR/
-          
-          # 设置输出路径为新的清洁目录
-          echo "artifact_path=$CLEAN_DIR" >> $GITHUB_OUTPUT
-
-      - name: Upload Pages Artifact (v4)
-        uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages 
-          # ⬆️ 上传新的、已清理的目录
-          path: ${{ steps.prepare_artifact.outputs.artifact_path }}
+          path: ./out
 
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
+    runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
