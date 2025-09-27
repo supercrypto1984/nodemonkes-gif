@@ -44,18 +44,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # 步骤 2: 显式下载 Artifact 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4 
-        with:
-          name: github-pages 
-          path: ./artifact 
+      # ⚠️ 移除显式下载 Artifact 步骤，让 deploy-pages 自动查找
 
       # 步骤 3: 部署 Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        # ⭐️ 关键修复：升级到 V4 版本，以避免内部 API 错误
+        # 强制使用 V4 版本
         uses: actions/deploy-pages@v4 
-        with:
-          # 告诉部署 Action 文件位于下载目录中
-          artifact_path: ./artifact
+        # ⚠️ 移除 artifact_path，让 Action 自动查找名为 'github-pages' 的 Artifact
