@@ -13,7 +13,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,13 +28,13 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # ✅ 关键修复：直接使用 actions/upload-artifact@v4
+      # 步骤 1: 上传 Artifact (解决 v1 弃用错误)
       - name: Upload Pages Artifact (v4)
         uses: actions/upload-artifact@v4
         with:
-          # 必须将 Artifact 名称设置为 'github-pages'，这是 Pages 部署 Action 默认查找的名称。
+          # 必须将 Artifact 名称设置为 'github-pages'
           name: github-pages 
-          path: ./out # 确保这是你的构建输出目录
+          path: ./out # 确保这是您的构建输出目录
 
   deploy:
     needs: build
@@ -45,6 +44,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      # 步骤 2: 显式下载 Artifact (解决 404 错误)
+      - name: Download Artifact
+        uses: actions/download-artifact@v4 
+        with:
+          # 下载上一步上传的 Artifact
+          name: github-pages 
+          # 将文件下载到 ./artifact 目录
+          path: ./artifact 
+
+      # 步骤 3: 部署 Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+        with:
+          # 告诉部署 Action 文件位于下载目录中
+          artifact_path: ./artifact
