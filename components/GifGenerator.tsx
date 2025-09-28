@@ -171,6 +171,9 @@ function GifGeneratorContent() {
 
   const loadMetadata = async () => {
     const metadataUrls = [
+      // 使用新的 R2 公开地址作为主要数据源
+      "https://pub-ce8a03b190984a3d99332e13b7d5e3cb.r2.dev/metadata.json",
+      // 保留原有地址作为备用
       "https://metadata.138148178.xyz/metadata.json",
       "https://nodemonkes.4everland.store/metadata.json",
     ]
@@ -192,8 +195,10 @@ function GifGeneratorContent() {
         const data = await response.json()
         setMetadata(data)
         setMetadataLoaded(true)
-        showStatus(`元数据加载完成 (${data.length} 个NFT)`)
-        console.log("Metadata loading complete", data.length, "items")
+        showStatus(
+          `元数据加载完成 (${data.length} 个NFT) - 数据源: ${url.includes("pub-ce8a03b") ? "R2主源" : "备用源"}`,
+        )
+        console.log("Metadata loading complete", data.length, "items from", url)
         return
       } catch (error) {
         console.error(`Failed to load metadata from ${url}:`, error)
@@ -290,6 +295,17 @@ function GifGeneratorContent() {
       const lowerImageExists = await checkImageExists(imageUrls.lower!)
 
       if (!upperImageExists || !lowerImageExists) {
+        // 如果主要地址失败，尝试备用地址
+        const fallbackUrls = getFallbackImageUrls(imageId, mode)
+        const upperFallbackExists = await checkImageExists(fallbackUrls.upper!)
+        const lowerFallbackExists = await checkImageExists(fallbackUrls.lower!)
+
+        if (upperFallbackExists && lowerFallbackExists) {
+          setImages(fallbackUrls)
+          showStatus(`预览已准备就绪 (ID: ${imageId}) - 使用备用数据源`)
+          return
+        }
+
         showStatus(`ID ${imageId} 的图片文件不存在，请尝试其他ID`, true)
         return
       }
@@ -313,12 +329,31 @@ function GifGeneratorContent() {
     if (!imageId) return { upper: null, lower: null }
 
     if (mode === "santa") {
-      // 使用公开的 R2 URL 作为主要地址，自定义域作为备用
+      // 圣诞版本使用原有的 R2 地址
       return {
         upper: `https://pub-048d93bb0a5a448783aecb63c784ccbf.r2.dev/santaupperbody/${imageId}.png`,
         lower: `https://pub-048d93bb0a5a448783aecb63c784ccbf.r2.dev/santalowerbody/${imageId}.png`,
       }
     } else {
+      // 普通版本使用新的 R2 公开地址
+      return {
+        upper: `https://pub-b4dd93b94d3b4b3a93fa599c57a78615.r2.dev/upperbody/${imageId}.png`,
+        lower: `https://pub-b4dd93b94d3b4b3a93fa599c57a78615.r2.dev/lowerbody/${imageId}.png`,
+      }
+    }
+  }
+
+  const getFallbackImageUrls = (imageId: number | null, mode: "normal" | "santa") => {
+    if (!imageId) return { upper: null, lower: null }
+
+    if (mode === "santa") {
+      // 圣诞版本的备用地址
+      return {
+        upper: `https://santamonkes.138148178.xyz/santaupperbody/${imageId}.png`,
+        lower: `https://santamonkes.138148178.xyz/santalowerbody/${imageId}.png`,
+      }
+    } else {
+      // 普通版本的备用地址
       return {
         upper: `https://nodemonkegif.138148178.xyz/upperbody/${imageId}.png`,
         lower: `https://nodemonkegif.138148178.xyz/lowerbody/${imageId}.png`,
