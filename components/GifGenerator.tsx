@@ -453,7 +453,7 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4">
       <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
         {/* 状态指示器 */}
         <div
@@ -473,134 +473,142 @@ function GifGeneratorContent() {
         </div>
 
         <div className="p-8">
-          {/* 模式选择 */}
-          <div className="mb-8">
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => {
-                  setMode("normal")
-                  if (id) {
-                    const imageId = getImageId(id)
-                    if (imageId) {
-                      setImages(getImageUrls(imageId, "normal"))
+          {/* 控制面板 - 居中 */}
+          <div className="max-w-4xl mx-auto">
+            {/* 模式选择 */}
+            <div className="mb-8">
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setMode("normal")
+                    if (id) {
+                      const imageId = getImageId(id)
+                      if (imageId) {
+                        setImages(getImageUrls(imageId, "normal"))
+                      }
                     }
-                  }
-                }}
-                className={`px-6 py-3 rounded-lg font-semibold text-base transition-all duration-200 ${
-                  mode === "normal"
-                    ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-900/50 scale-105"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
-                }`}
-              >
-                Normal
-              </button>
-              <button
-                onClick={() => {
-                  setMode("santa")
-                  if (id) {
-                    const imageId = getImageId(id)
-                    if (imageId) {
-                      setImages(getImageUrls(imageId, "santa"))
+                  }}
+                  className={`px-6 py-3 rounded-lg font-semibold text-base transition-all duration-200 ${
+                    mode === "normal"
+                      ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-900/50 scale-105"
+                      : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+                  }`}
+                >
+                  Normal
+                </button>
+                <button
+                  onClick={() => {
+                    setMode("santa")
+                    if (id) {
+                      const imageId = getImageId(id)
+                      if (imageId) {
+                        setImages(getImageUrls(imageId, "santa"))
+                      }
                     }
-                  }
-                }}
-                className={`px-6 py-3 rounded-lg font-semibold text-base transition-all duration-200 ${
-                  mode === "santa"
-                    ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-900/50 scale-105"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
-                }`}
-              >
-                🎅 Santa Hat
-              </button>
-            </div>
-          </div>
-
-          {/* ID 输入 */}
-          <div className="mb-8">
-            <div className="flex justify-center items-center gap-4 mb-3">
-              <input
-                id="idInput"
-                type="text"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                placeholder="输入ID或铭文号"
-                className="px-5 py-3 text-lg bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64 placeholder-gray-500"
-              />
-              <button
-                onClick={preview}
-                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-200 shadow-lg shadow-green-900/50"
-              >
-                生成预览
-              </button>
-            </div>
-            <div className="text-center space-y-1">
-              <div className="text-sm text-gray-400">推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)</div>
-              <div className="text-sm text-gray-500">
-                {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
+                  }}
+                  className={`px-6 py-3 rounded-lg font-semibold text-base transition-all duration-200 ${
+                    mode === "santa"
+                      ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-900/50 scale-105"
+                      : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+                  }`}
+                >
+                  🎅 Santa Hat
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* 分辨率设置 */}
-          <div className="mb-8 flex justify-center items-center gap-4">
-            <label htmlFor="resolutionInput" className="text-sm font-medium text-gray-300">
-              分辨率 (px):
-            </label>
-            <input
-              id="resolutionInput"
-              type="number"
-              value={resolution}
-              onChange={(e) => setResolution(Number(e.target.value))}
-              min={100}
-              max={1200}
-              step={100}
-              className="px-4 py-2 text-base bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-32"
-            />
-            <span className="text-xs text-gray-500">100-1200像素</span>
-          </div>
-
-          {/* 背景控制 */}
-          <BackgroundControls
-            bgColor={bgColor}
-            setBgColor={setBgColor}
-            updateBackground={updateBackground}
-            showColorPicker={showColorPicker}
-            setShowColorPicker={setShowColorPicker}
-          />
-
-          {/* 动画速度 */}
-          <div className="mb-8">
-            <div className="flex justify-center items-center gap-4 mb-2">
-              <label htmlFor="speedInput" className="text-sm font-medium text-gray-300">
-                动画速度:
-              </label>
-              <input
-                id="speedInput"
-                type="range"
-                min={0.1}
-                max={5}
-                step={0.1}
-                value={speed}
-                onChange={(e) => setSpeed(Number(e.target.value))}
-                className="w-64 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
-              />
-              <span className="text-base font-semibold text-green-400 w-16">{speed.toFixed(1)}x</span>
+            {/* ID 输入 */}
+            <div className="mb-8">
+              <div className="flex justify-center items-center gap-4 mb-3">
+                <input
+                  id="idInput"
+                  type="text"
+                  value={id}
+                  onChange={(e) => setId(e.target.value)}
+                  placeholder="输入ID或铭文号"
+                  className="px-5 py-3 text-lg bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64 placeholder-gray-500"
+                />
+                <button
+                  onClick={preview}
+                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-200 shadow-lg shadow-green-900/50"
+                >
+                  生成预览
+                </button>
+              </div>
+              <div className="text-center space-y-1">
+                <div className="text-sm text-gray-400">推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)</div>
+                <div className="text-sm text-gray-500">
+                  {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
+                </div>
+              </div>
             </div>
-            <div className="text-center text-xs text-gray-500">调整动画速度 (0.1x - 5x)</div>
+
+            {/* 分辨率和背景控制 - 两列布局 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* 分辨率设置 */}
+              <div className="flex justify-center items-center gap-4">
+                <label htmlFor="resolutionInput" className="text-sm font-medium text-gray-300 whitespace-nowrap">
+                  分辨率 (px):
+                </label>
+                <input
+                  id="resolutionInput"
+                  type="number"
+                  value={resolution}
+                  onChange={(e) => setResolution(Number(e.target.value))}
+                  min={100}
+                  max={1200}
+                  step={100}
+                  className="px-4 py-2 text-base bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-32"
+                />
+                <span className="text-xs text-gray-500">100-1200</span>
+              </div>
+
+              {/* 背景控制 */}
+              <div className="flex justify-center">
+                <BackgroundControls
+                  bgColor={bgColor}
+                  setBgColor={setBgColor}
+                  updateBackground={updateBackground}
+                  showColorPicker={showColorPicker}
+                  setShowColorPicker={setShowColorPicker}
+                />
+              </div>
+            </div>
+
+            {/* 动画速度 */}
+            <div className="mb-8">
+              <div className="flex justify-center items-center gap-4 mb-2">
+                <label htmlFor="speedInput" className="text-sm font-medium text-gray-300">
+                  动画速度:
+                </label>
+                <input
+                  id="speedInput"
+                  type="range"
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                  value={speed}
+                  onChange={(e) => setSpeed(Number(e.target.value))}
+                  className="w-64 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
+                />
+                <span className="text-base font-semibold text-green-400 w-16">{speed.toFixed(1)}x</span>
+              </div>
+              <div className="text-center text-xs text-gray-500">调整动画速度 (0.1x - 5x)</div>
+            </div>
+
+            {/* 保存GIF按钮 */}
+            <div className="flex justify-center mb-8">
+              <button
+                onClick={generateGIF}
+                disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
+                className="px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-lg rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-200 shadow-lg shadow-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              >
+                {isGenerating ? "生成中..." : "保存GIF"}
+              </button>
+            </div>
           </div>
 
-          {/* 保存GIF按钮 */}
-          <div className="flex justify-center mb-8">
-            <button
-              onClick={generateGIF}
-              disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
-              className="px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-lg rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-200 shadow-lg shadow-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-            >
-              {isGenerating ? "生成中..." : "保存GIF"}
-            </button>
-          </div>
-
-          {/* 预览区域 */}
+          {/* 预览区域 - 完全居中 */}
           <Preview
             canvasRef={canvasRef}
             images={images}
@@ -613,7 +621,7 @@ function GifGeneratorContent() {
           {/* 状态消息 */}
           {status && (
             <div
-              className={`mt-6 p-4 rounded-lg text-center text-sm font-medium ${
+              className={`mt-6 p-4 rounded-lg text-center text-sm font-medium max-w-4xl mx-auto ${
                 isError
                   ? "bg-red-900/30 text-red-400 border border-red-800"
                   : "bg-green-900/30 text-green-400 border border-green-800"
@@ -625,7 +633,7 @@ function GifGeneratorContent() {
 
           {/* 进度条 */}
           {isGenerating && (
-            <div className="mt-6">
+            <div className="mt-6 max-w-4xl mx-auto">
               <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-green-600 to-green-400 transition-all duration-300 rounded-full"
