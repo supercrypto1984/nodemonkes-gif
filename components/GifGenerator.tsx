@@ -461,11 +461,11 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    // 最外层容器：保持最大宽度，并确保文本居中（主要针对状态指示器等）
+    // 最外层容器：设置最大宽度和阴影
     <div
       className="text-center bg-white p-5 rounded-lg shadow-xl"
       style={{
-        maxWidth: "1100px",
+        maxWidth: "500px", // 缩小最大宽度以更好地居中
       }}
     >
       {/* 状态指示器 */}
@@ -476,7 +476,7 @@ function GifGeneratorContent() {
         {!gifLoaded && <span className="ml-2">| 🔄 GIF库加载中...</span>}
       </div>
 
-      {/* 模式选择 - 移除内联样式，使用 Tailwind 类居中 */}
+      {/* 模式选择 - 使用 flex justify-center 居中按钮 */}
       <div className="mb-5 flex justify-center space-x-2">
         <button
           onClick={() => {
@@ -512,16 +512,16 @@ function GifGeneratorContent() {
         </button>
       </div>
 
-      {/* ID 输入 - 使用 mx-auto w-fit 居中内容块，并替换内联样式 */}
-      <div className="my-5 mx-auto w-fit text-left">
-        <label htmlFor="idInput" className="block text-sm font-medium text-gray-700 mb-1">输入ID或铭文号</label>
+      {/* ID 输入 - 使用 flex-col items-center 居中所有堆叠的元素 */}
+      <div className="my-5 flex flex-col items-center">
+        <label htmlFor="idInput" className="text-sm font-medium text-gray-700 mb-1">输入ID或铭文号</label>
         <input
           id="idInput"
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder="输入ID或铭文号"
-          className="p-2 text-base w-52 mr-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          className="p-2 text-base w-52 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
         <div className="text-xs text-gray-600 mt-1">
           推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)
@@ -531,27 +531,27 @@ function GifGeneratorContent() {
         </div>
       </div>
 
-      {/* 分辨率设置 - 使用 mx-auto w-fit 居中内容块，并替换内联样式 */}
-      <div className="my-5 mx-auto w-fit text-left flex items-center">
-        <label htmlFor="resolutionInput" className="mr-3 text-sm font-medium text-gray-700">
-          分辨率 (px):
-        </label>
-        <input
-          id="resolutionInput"
-          type="number"
-          value={resolution}
-          onChange={(e) => setResolution(Number(e.target.value))}
-          min={100}
-          max={1200}
-          step={100}
-          className="p-2 text-base w-24 mr-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-        />
-        <div className="text-xs text-gray-600 absolute bottom-0 -translate-y-5 transform translate-x-32 w-48">调整生成的GIF大小 (100-1200像素)</div>
+      {/* 分辨率设置 - 使用 flex-col items-center 居中所有堆叠的元素 */}
+      <div className="my-5 flex flex-col items-center">
+        <div className="flex items-center">
+          <label htmlFor="resolutionInput" className="mr-3 text-sm font-medium text-gray-700">
+            分辨率 (px):
+          </label>
+          <input
+            id="resolutionInput"
+            type="number"
+            value={resolution}
+            onChange={(e) => setResolution(Number(e.target.value))}
+            min={100}
+            max={1200}
+            step={100}
+            className="p-2 text-base w-24 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div className="text-xs text-gray-600 mt-1">调整生成的GIF大小 (100-1200像素)</div>
       </div>
-      <div className="text-xs text-gray-600 mt-[-15px] mb-5">调整生成的GIF大小 (100-1200像素)</div>
 
-
-      {/* 生成预览按钮 - 替换内联样式 */}
+      {/* 生成预览按钮 - 保持居中 */}
       <button
         onClick={preview}
         className="py-2 px-5 text-base cursor-pointer bg-green-500 text-white border-none rounded-md m-1 hover:bg-green-600 transition-colors"
@@ -559,7 +559,7 @@ function GifGeneratorContent() {
         生成预览
       </button>
 
-      {/* 背景控制 - BackgroundControls 组件内部已修改，此处保持调用 */}
+      {/* 背景控制 - BackgroundControls 内部已修改为居中 */}
       <BackgroundControls
         bgColor={bgColor}
         setBgColor={setBgColor}
@@ -568,27 +568,29 @@ function GifGeneratorContent() {
         setShowColorPicker={setShowColorPicker}
       />
 
-      {/* 动画速度 - 使用 mx-auto w-fit 居中内容块，并替换内联样式 */}
-      <div className="my-5 mx-auto w-fit text-left flex items-center">
-        <label htmlFor="speedInput" className="mr-3 text-sm font-medium text-gray-700">
-          动画速度:
-        </label>
-        <input
-          id="speedInput"
-          type="range"
-          min={0.1}
-          max={5}
-          step={0.1}
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-          className="w-52 mr-2"
-        />
-        <span className="text-sm">{speed.toFixed(1)}x</span>
+      {/* 动画速度 - 使用 flex-col items-center 居中所有堆叠的元素 */}
+      <div className="my-5 flex flex-col items-center">
+        <div className="flex items-center">
+          <label htmlFor="speedInput" className="mr-3 text-sm font-medium text-gray-700">
+            动画速度:
+          </label>
+          <input
+            id="speedInput"
+            type="range"
+            min={0.1}
+            max={5}
+            step={0.1}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="w-52 mr-2"
+          />
+          <span className="text-sm">{speed.toFixed(1)}x</span>
+        </div>
+        <div className="text-xs text-gray-600 mt-1">调整动画速度 (0.1x - 5x)</div>
       </div>
-      <div className="text-xs text-gray-600 mt-[-15px] mb-5">调整动画速度 (0.1x - 5x)</div>
 
 
-      {/* 保存GIF按钮 - 替换内联样式 */}
+      {/* 保存GIF按钮 - 保持居中 */}
       <button
         onClick={generateGIF}
         disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
@@ -607,7 +609,7 @@ function GifGeneratorContent() {
         mode={mode}
       />
 
-      {/* 状态消息 - 替换内联样式 */}
+      {/* 状态消息 */}
       {status && (
         <div
           className={`my-3 p-3 rounded-md text-center text-sm ${
@@ -618,7 +620,7 @@ function GifGeneratorContent() {
         </div>
       )}
 
-      {/* 进度条 - 保持居中 */}
+      {/* 进度条 */}
       {isGenerating && (
         <div
           className="w-4/5 mx-auto my-3 h-5 bg-gray-200 rounded-full overflow-hidden"
@@ -636,10 +638,6 @@ function GifGeneratorContent() {
     </div>
   )
 }
-
-// ... (其他函数保持不变)
-// ... (loadImage, smoothInterpolation, drawFrame, easeInOutQuad, checkImageExists)
-// ...
 
 export default function GifGenerator() {
   return (
