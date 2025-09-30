@@ -461,23 +461,33 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    // 外层容器：设置较小的最大宽度，并保持文字居中
     <div
-      className="text-center bg-white p-5 rounded-lg shadow-xl"
       style={{
-        maxWidth: "400px",
+        textAlign: "center",
+        background: "white",
+        padding: "20px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        maxWidth: "1100px",
+        margin: "0 auto",
       }}
     >
       {/* 状态指示器 */}
       <div
-        className={`mb-5 p-3 rounded-md text-sm ${metadataLoaded ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}
+        style={{
+          marginBottom: "20px",
+          padding: "10px",
+          background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
+          borderRadius: "4px",
+          fontSize: "14px",
+        }}
       >
         状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
-        {!gifLoaded && <span className="ml-2">| 🔄 GIF库加载中...</span>}
+        {!gifLoaded && <span style={{ marginLeft: "10px" }}>| 🔄 GIF库加载中...</span>}
       </div>
 
-      {/* 模式选择 - 使用 flex justify-center 居中按钮 */}
-      <div className="mb-5 flex justify-center space-x-2">
+      {/* 模式选择 */}
+      <div style={{ marginBottom: "20px" }}>
         <button
           onClick={() => {
             setMode("normal")
@@ -488,9 +498,16 @@ function GifGeneratorContent() {
               }
             }
           }}
-          className={`py-2 px-5 text-base cursor-pointer border-none rounded-md transition-colors ${
-            mode === "normal" ? "bg-green-500 text-white" : "bg-gray-200 text-black hover:bg-gray-300"
-          }`}
+          style={{
+            padding: "8px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+            background: mode === "normal" ? "#4CAF50" : "#e0e0e0",
+            color: mode === "normal" ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            margin: "0 5px",
+          }}
         >
           Normal
         </button>
@@ -504,63 +521,89 @@ function GifGeneratorContent() {
               }
             }
           }}
-          className={`py-2 px-5 text-base cursor-pointer border-none rounded-md transition-colors ${
-            mode === "santa" ? "bg-red-500 text-white" : "bg-gray-200 text-black hover:bg-gray-300"
-          }`}
+          style={{
+            padding: "8px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+            background: mode === "santa" ? "#4CAF50" : "#e0e0e0",
+            color: mode === "santa" ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            margin: "0 5px",
+          }}
         >
           🎅 Santa Hat
         </button>
       </div>
 
-      {/* ID 输入 - 核心居中块：w-64 mx-auto 强制块居中，内部为 text-left */}
-      <div className="my-5 mx-auto w-64 text-left">
-        <label htmlFor="idInput" className="block text-sm font-medium text-gray-700 mb-1">输入ID或铭文号</label>
+      {/* ID 输入 */}
+      <div style={{ margin: "20px 0" }}>
         <input
           id="idInput"
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder="输入ID或铭文号"
-          // w-full 确保输入框填满 w-64 容器
-          className="p-2 text-base w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          style={{
+            padding: "8px",
+            fontSize: "16px",
+            width: "200px",
+            marginRight: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
         />
-        <div className="text-xs text-gray-600 mt-1">
+        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
           推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)
         </div>
-        <div className="text-xs text-gray-600">
+        <div style={{ fontSize: "12px", color: "#666" }}>
           {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
         </div>
       </div>
 
-      {/* 分辨率设置 - 核心居中块：w-64 mx-auto 强制块居中，内部使用 flex justify-between */}
-      <div className="my-5 mx-auto w-64 text-left">
-        <div className="flex items-center justify-between">
-          <label htmlFor="resolutionInput" className="text-sm font-medium text-gray-700">
-            分辨率 (px):
-          </label>
-          <input
-            id="resolutionInput"
-            type="number"
-            value={resolution}
-            onChange={(e) => setResolution(Number(e.target.value))}
-            min={100}
-            max={1200}
-            step={100}
-            className="p-2 text-base w-20 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-        <div className="text-xs text-gray-600 mt-1">调整生成的GIF大小 (100-1200像素)</div>
+      {/* 分辨率设置 */}
+      <div style={{ margin: "20px 0" }}>
+        <label htmlFor="resolutionInput" style={{ marginRight: "10px", fontSize: "14px" }}>
+          分辨率 (px):
+        </label>
+        <input
+          id="resolutionInput"
+          type="number"
+          value={resolution}
+          onChange={(e) => setResolution(Number(e.target.value))}
+          min={100}
+          max={1200}
+          step={100}
+          style={{
+            padding: "8px",
+            fontSize: "16px",
+            width: "100px",
+            marginRight: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
+        />
+        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整生成的GIF大小 (100-1200像素)</div>
       </div>
 
-      {/* 生成预览按钮 - 保持居中 */}
+      {/* 生成预览按钮 */}
       <button
         onClick={preview}
-        className="py-2 px-5 text-base cursor-pointer bg-green-500 text-white border-none rounded-md m-1 hover:bg-green-600 transition-colors"
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
       >
         生成预览
       </button>
 
-      {/* 背景控制 - BackgroundControls 内部已修改为居中 */}
+      {/* 背景控制 */}
       <BackgroundControls
         bgColor={bgColor}
         setBgColor={setBgColor}
@@ -569,36 +612,40 @@ function GifGeneratorContent() {
         setShowColorPicker={setShowColorPicker}
       />
 
-      {/* 动画速度 - 核心居中块：w-64 mx-auto 强制块居中，内部使用 flex justify-between */}
-      <div className="my-5 mx-auto w-64 text-left">
-        <div className="flex items-center justify-between">
-          <label htmlFor="speedInput" className="text-sm font-medium text-gray-700">
-            动画速度:
-          </label>
-          <div className="flex items-center space-x-2 w-32">
-            <input
-              id="speedInput"
-              type="range"
-              min={0.1}
-              max={5}
-              step={0.1}
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full"
-              // 移除内联 style={{ width: "200px", marginRight: "10px" }}
-            />
-            <span className="text-sm w-8 text-right">{speed.toFixed(1)}x</span>
-          </div>
-        </div>
-        <div className="text-xs text-gray-600 mt-1">调整动画速度 (0.1x - 5x)</div>
+      {/* 动画速度 */}
+      <div style={{ margin: "20px 0" }}>
+        <label htmlFor="speedInput" style={{ marginRight: "10px", fontSize: "14px" }}>
+          动画速度:
+        </label>
+        <input
+          id="speedInput"
+          type="range"
+          min={0.1}
+          max={5}
+          step={0.1}
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          style={{ width: "200px", marginRight: "10px" }}
+        />
+        <span>{speed.toFixed(1)}x</span>
+        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整动画速度 (0.1x - 5x)</div>
       </div>
 
-
-      {/* 保存GIF按钮 - 保持居中 */}
+      {/* 保存GIF按钮 */}
       <button
         onClick={generateGIF}
         disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
-        className="mt-3 py-2 px-5 text-base cursor-pointer bg-blue-500 text-white border-none rounded-md transition-opacity hover:bg-blue-600 disabled:opacity-50"
+        style={{
+          marginTop: "10px",
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#2196F3",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          opacity: isGenerating || !images.upper || !images.lower || !gifLoaded ? 0.5 : 1,
+        }}
       >
         {isGenerating ? "生成中..." : "保存GIF"}
       </button>
@@ -613,21 +660,33 @@ function GifGeneratorContent() {
         mode={mode}
       />
 
-      {/* 状态消息 - 保持居中 */}
+      {/* 状态消息 */}
       {status && (
         <div
-          className={`my-3 p-3 rounded-md text-center text-sm ${
-            isError ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-          } mx-auto w-4/5`}
+          style={{
+            margin: "10px 0",
+            padding: "10px",
+            borderRadius: "4px",
+            textAlign: "center",
+            background: isError ? "#ffebee" : "#e8f5e9",
+            color: isError ? "#c62828" : "#2e7d32",
+          }}
         >
           {status}
         </div>
       )}
 
-      {/* 进度条 - 保持居中 */}
+      {/* 进度条 */}
       {isGenerating && (
         <div
-          className="w-4/5 mx-auto my-3 h-5 bg-gray-200 rounded-full overflow-hidden"
+          style={{
+            width: "80%",
+            margin: "10px auto",
+            height: "20px",
+            background: "#f0f0f0",
+            borderRadius: "10px",
+            overflow: "hidden",
+          }}
         >
           <div
             style={{
