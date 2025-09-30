@@ -4,10 +4,6 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import Preview from "./Preview"
 import BackgroundControls from "./BackgroundControls"
 import ClientWrapper from "./ClientWrapper"
-import { Button } from "./ui/button" // 导入 Button 组件
-import { Input } from "./ui/input" // 导入 Input 组件
-import { PARAMS, BODY_COLORS } from "../utils/constants" // 导入常量
-import { cn } from "../lib/utils" // 导入 cn 辅助函数
 
 // 动态导入 GIF.js 以避免 SSR 问题
 let GIF: any = null
@@ -21,8 +17,77 @@ interface Metadata {
   }
 }
 
-// 使用从 utils/constants 导入的 BODY_COLORS 类型，并简化本地代码
-type BodyColorType = typeof BODY_COLORS
+type BodyColorType = {
+  [key: string]: string
+} & {
+  albino: string
+  alien: string
+  beak: string
+  binary: string
+  boned: string
+  bot: string
+  brown: string
+  dark: string
+  deathbot: string
+  dos: string
+  gold: string
+  green: string
+  grey: string
+  hyena: string
+  ion: string
+  light: string
+  medium: string
+  mempool: string
+  moon: string
+  patriot: string
+  pepe: string
+  pink: string
+  purple: string
+  rainbow: string
+  red: string
+  safemode: string
+  striped: string
+  underlord: string
+  vhs: string
+  white: string
+  wrapped: string
+  zombie: string
+}
+
+const BODY_COLORS: BodyColorType = {
+  albino: "#BDADAD",
+  alien: "#04CFE7",
+  beak: "#F8AC00",
+  binary: "#010101",
+  boned: "#000000",
+  bot: "#484848",
+  brown: "#310000",
+  dark: "#482510",
+  deathbot: "#282831",
+  dos: "#0002A5",
+  gold: "#FFAA01",
+  green: "#002205",
+  grey: "#232A30",
+  hyena: "#BA8837",
+  ion: "#060F26",
+  light: "#B7844F",
+  medium: "#945321",
+  mempool: "#BE0B3A",
+  moon: "#3501BB",
+  patriot: "#0D0060",
+  pepe: "#127602",
+  pink: "#E844CE",
+  purple: "#38034A",
+  rainbow: "#009DFF",
+  red: "#630001",
+  safemode: "#000DFF",
+  striped: "#110654",
+  underlord: "#9C0901",
+  vhs: "#0600FF",
+  white: "#c7bcb6",
+  wrapped: "#FFFFFF",
+  zombie: "#104119",
+}
 
 const isMobile = typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 const defaultResolution = isMobile ? 400 : 600
@@ -58,10 +123,8 @@ function GifGeneratorContent() {
   const outputCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
-    // 动态加载 GIF.js
     const loadGif = async () => {
       try {
-        // 使用相对路径导入 Worker
         const module = await import("gif.js")
         GIF = module.default
         setGifLoaded(true)
@@ -107,9 +170,7 @@ function GifGeneratorContent() {
 
   const loadMetadata = async () => {
     const metadataUrls = [
-      // 使用新的 R2 公开地址作为主要数据源
       "https://pub-ce8a03b190984a3d99332e13b7d5e3cb.r2.dev/metadata.json",
-      // 保留原有地址作为备用
       "https://metadata.138148178.xyz/metadata.json",
       "https://nodemonkes.4everland.store/metadata.json",
     ]
@@ -231,7 +292,6 @@ function GifGeneratorContent() {
       const lowerImageExists = await checkImageExists(imageUrls.lower!)
 
       if (!upperImageExists || !lowerImageExists) {
-        // 如果主要地址失败，尝试备用地址
         const fallbackUrls = getFallbackImageUrls(imageId, mode)
         const upperFallbackExists = await checkImageExists(fallbackUrls.upper!)
         const lowerFallbackExists = await checkImageExists(fallbackUrls.lower!)
@@ -265,13 +325,11 @@ function GifGeneratorContent() {
     if (!imageId) return { upper: null, lower: null }
 
     if (mode === "santa") {
-      // 圣诞版本使用原有的 R2 地址
       return {
         upper: `https://pub-048d93bb0a5a448783aecb63c784ccbf.r2.dev/santaupperbody/${imageId}.png`,
         lower: `https://pub-048d93bb0a5a448783aecb63c784ccbf.r2.dev/santalowerbody/${imageId}.png`,
       }
     } else {
-      // 普通版本使用新的 R2 公开地址
       return {
         upper: `https://pub-b4dd93b94d3b4b3a93fa599c57a78615.r2.dev/upperbody/${imageId}.png`,
         lower: `https://pub-b4dd93b94d3b4b3a93fa599c57a78615.r2.dev/lowerbody/${imageId}.png`,
@@ -283,13 +341,11 @@ function GifGeneratorContent() {
     if (!imageId) return { upper: null, lower: null }
 
     if (mode === "santa") {
-      // 圣诞版本的备用地址
       return {
         upper: `https://santamonkes.138148178.xyz/santaupperbody/${imageId}.png`,
         lower: `https://santamonkes.138148178.xyz/santalowerbody/${imageId}.png`,
       }
     } else {
-      // 普通版本的备用地址
       return {
         upper: `https://nodemonkegif.138148178.xyz/upperbody/${imageId}.png`,
         lower: `https://nodemonkegif.138148178.xyz/lowerbody/${imageId}.png`,
@@ -346,7 +402,6 @@ function GifGeneratorContent() {
         transparent: null,
         background: bgColor,
         repeat: 0,
-        workerScript: "/gif.worker.js", // 确保 worker 路径正确
       })
 
       gif.on("progress", (p: number) => {
@@ -398,157 +453,190 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    // ⭐️ 核心 UI 布局: 双栏布局，深色主题，左侧预览，右侧控制
-    <div className="flex flex-col lg:flex-row max-w-6xl mx-auto p-4 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl">
-      
-      {/* 1. 左侧: 预览和控制 */}
-      <div className="flex flex-col items-center lg:items-start lg:w-1/2 p-4 border-r border-gray-800">
-        <h2 className="text-2xl font-semibold text-white mb-6">GIF 生成器</h2>
-
-        {/* 预览区域 (Canvas) */}
-        <Preview
-          canvasRef={canvasRef}
-          images={images}
-          bgColor={bgColor}
-          resolution={resolution}
-          speed={speed}
-          mode={mode}
-        />
-
-        {/* 动画速度控制 */}
-        <div className="w-full max-w-[600px] mt-6 px-4">
-          <label htmlFor="speedInput" className="block text-sm font-medium text-gray-300 mb-2">
-            动画速度: <span className="text-green-400">{speed.toFixed(1)}x</span>
-          </label>
-          <input
-            id="speedInput"
-            type="range"
-            min={0.1}
-            max={5}
-            step={0.1}
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg"
-          />
-        </div>
-      </div>
-      
-      {/* 2. 右侧: 输入和功能控制 */}
-      <div className="lg:w-1/2 p-4 space-y-6">
-        
-        {/* 模式选择 */}
-        <div className="flex space-x-3">
-          <Button
-            onClick={() => {
-              setMode("normal")
-              if (id) {
-                const imageId = getImageId(id)
-                if (imageId) {
-                  setImages(getImageUrls(imageId, "normal"))
-                }
-              }
-            }}
-            variant={mode === "normal" ? "default" : "secondary"}
-            className={cn(
-              "text-base", 
-              mode === "normal" ? "bg-green-600 hover:bg-green-500" : "bg-gray-700 hover:bg-gray-600 text-gray-200"
-            )}
-          >
-            Normal
-          </Button>
-          <Button
-            onClick={() => {
-              setMode("santa")
-              if (id) {
-                const imageId = getImageId(id)
-                if (imageId) {
-                  setImages(getImageUrls(imageId, "santa"))
-                }
-              }
-            }}
-            variant={mode === "santa" ? "default" : "secondary"}
-            className={cn(
-              "text-base",
-              mode === "santa" ? "bg-red-600 hover:bg-red-500" : "bg-gray-700 hover:bg-gray-600 text-gray-200"
-            )}
-          >
-            🎅 Santa Hat
-          </Button>
-        </div>
-
-        {/* ID 输入 */}
-        <div className="space-y-2">
-          <label htmlFor="idInput" className="block text-sm font-medium text-gray-300">
-            Nodemonke ID / 铭文号
-          </label>
-          <div className="flex space-x-3">
-            <Input
-              id="idInput"
-              type="text"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              placeholder="输入 1 - 10000"
-              className="w-full bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-            />
-            <Button onClick={preview} className="bg-blue-600 hover:bg-blue-500">
-              生成预览
-            </Button>
-          </div>
-          <p className="text-xs text-gray-500">
-            推荐尝试: 1, 100, 1000, 5000 | 离线模式：仅支持ID 1-10000
-          </p>
-        </div>
-
-        {/* 分辨率设置 */}
-        <div className="space-y-2">
-          <label htmlFor="resolutionInput" className="block text-sm font-medium text-gray-300">
-            GIF 分辨率 (px): <span className="text-yellow-400">{resolution}</span>
-          </label>
-          <input
-            id="resolutionInput"
-            type="range"
-            min={100}
-            max={1200}
-            step={100}
-            value={resolution}
-            onChange={(e) => setResolution(Number(e.target.value))}
-            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg"
-          />
-        </div>
-        
-        {/* 背景控制 */}
-        <BackgroundControls
-          bgColor={bgColor}
-          setBgColor={setBgColor}
-          updateBackground={updateBackground}
-          showColorPicker={showColorPicker}
-          setShowColorPicker={setShowColorPicker}
-        />
-
-        {/* 保存 GIF 按钮 */}
-        <Button
-          onClick={generateGIF}
-          disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
-          className={cn(
-            "w-full py-6 text-lg font-bold transition-all duration-300",
-            isGenerating ? "bg-yellow-600" : "bg-purple-600 hover:bg-purple-500",
-          )}
-        >
-          {isGenerating ? `生成中... ${progress}%` : "⬇️ 下载 GIF"}
-        </Button>
-      </div>
-
-      {/* 3. 状态消息 */}
-      {status && (
+    <div className="max-w-6xl mx-auto">
+      <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f] rounded-2xl shadow-2xl border border-gray-800 overflow-hidden">
+        {/* 状态指示器 */}
         <div
-          className={cn(
-            "fixed top-4 right-4 p-3 rounded-lg font-medium shadow-xl z-50",
-            isError ? "bg-red-900 text-red-300" : "bg-green-900 text-green-300",
-          )}
+          className={`px-6 py-4 border-b border-gray-800 ${
+            metadataLoaded
+              ? "bg-gradient-to-r from-green-900/30 to-green-800/20"
+              : "bg-gradient-to-r from-yellow-900/30 to-yellow-800/20"
+          }`}
         >
-          {status}
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <span className="font-semibold text-gray-300">状态:</span>
+            <span className={metadataLoaded ? "text-green-400" : "text-yellow-400"}>
+              {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
+            </span>
+            {!gifLoaded && <span className="text-blue-400">| 🔄 GIF库加载中...</span>}
+          </div>
         </div>
-      )}
+
+        <div className="p-8">
+          {/* 模式选择 */}
+          <div className="mb-8">
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => {
+                  setMode("normal")
+                  if (id) {
+                    const imageId = getImageId(id)
+                    if (imageId) {
+                      setImages(getImageUrls(imageId, "normal"))
+                    }
+                  }
+                }}
+                className={`px-6 py-3 rounded-lg font-semibold text-base transition-all duration-200 ${
+                  mode === "normal"
+                    ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-900/50 scale-105"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+                }`}
+              >
+                Normal
+              </button>
+              <button
+                onClick={() => {
+                  setMode("santa")
+                  if (id) {
+                    const imageId = getImageId(id)
+                    if (imageId) {
+                      setImages(getImageUrls(imageId, "santa"))
+                    }
+                  }
+                }}
+                className={`px-6 py-3 rounded-lg font-semibold text-base transition-all duration-200 ${
+                  mode === "santa"
+                    ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-900/50 scale-105"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+                }`}
+              >
+                🎅 Santa Hat
+              </button>
+            </div>
+          </div>
+
+          {/* ID 输入 */}
+          <div className="mb-8">
+            <div className="flex justify-center items-center gap-4 mb-3">
+              <input
+                id="idInput"
+                type="text"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                placeholder="输入ID或铭文号"
+                className="px-5 py-3 text-lg bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64 placeholder-gray-500"
+              />
+              <button
+                onClick={preview}
+                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-200 shadow-lg shadow-green-900/50"
+              >
+                生成预览
+              </button>
+            </div>
+            <div className="text-center space-y-1">
+              <div className="text-sm text-gray-400">推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)</div>
+              <div className="text-sm text-gray-500">
+                {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
+              </div>
+            </div>
+          </div>
+
+          {/* 分辨率设置 */}
+          <div className="mb-8 flex justify-center items-center gap-4">
+            <label htmlFor="resolutionInput" className="text-sm font-medium text-gray-300">
+              分辨率 (px):
+            </label>
+            <input
+              id="resolutionInput"
+              type="number"
+              value={resolution}
+              onChange={(e) => setResolution(Number(e.target.value))}
+              min={100}
+              max={1200}
+              step={100}
+              className="px-4 py-2 text-base bg-gray-900 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-32"
+            />
+            <span className="text-xs text-gray-500">100-1200像素</span>
+          </div>
+
+          {/* 背景控制 */}
+          <BackgroundControls
+            bgColor={bgColor}
+            setBgColor={setBgColor}
+            updateBackground={updateBackground}
+            showColorPicker={showColorPicker}
+            setShowColorPicker={setShowColorPicker}
+          />
+
+          {/* 动画速度 */}
+          <div className="mb-8">
+            <div className="flex justify-center items-center gap-4 mb-2">
+              <label htmlFor="speedInput" className="text-sm font-medium text-gray-300">
+                动画速度:
+              </label>
+              <input
+                id="speedInput"
+                type="range"
+                min={0.1}
+                max={5}
+                step={0.1}
+                value={speed}
+                onChange={(e) => setSpeed(Number(e.target.value))}
+                className="w-64 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
+              />
+              <span className="text-base font-semibold text-green-400 w-16">{speed.toFixed(1)}x</span>
+            </div>
+            <div className="text-center text-xs text-gray-500">调整动画速度 (0.1x - 5x)</div>
+          </div>
+
+          {/* 保存GIF按钮 */}
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={generateGIF}
+              disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
+              className="px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-lg rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-200 shadow-lg shadow-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            >
+              {isGenerating ? "生成中..." : "保存GIF"}
+            </button>
+          </div>
+
+          {/* 预览区域 */}
+          <Preview
+            canvasRef={canvasRef}
+            images={images}
+            bgColor={bgColor}
+            resolution={resolution}
+            speed={speed}
+            mode={mode}
+          />
+
+          {/* 状态消息 */}
+          {status && (
+            <div
+              className={`mt-6 p-4 rounded-lg text-center text-sm font-medium ${
+                isError
+                  ? "bg-red-900/30 text-red-400 border border-red-800"
+                  : "bg-green-900/30 text-green-400 border border-green-800"
+              }`}
+            >
+              {status}
+            </div>
+          )}
+
+          {/* 进度条 */}
+          {isGenerating && (
+            <div className="mt-6">
+              <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-green-600 to-green-400 transition-all duration-300 rounded-full"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <div className="text-center mt-2 text-sm text-gray-400">{progress}%</div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
@@ -561,10 +649,6 @@ export default function GifGenerator() {
   )
 }
 
-// -----------------------------------------------------------
-// 动画辅助函数 (保持不变)
-// -----------------------------------------------------------
-
 async function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -575,8 +659,8 @@ async function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
-function easeInOutQuad(t: number): number {
-  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+function smoothInterpolation(start: number, end: number, t: number): number {
+  return start + (end - start) * easeInOutQuad(t)
 }
 
 function drawFrame(
@@ -599,10 +683,14 @@ function drawFrame(
   ctx.fillStyle = bgColor || "#ffffff"
   ctx.fillRect(0, 0, size, size)
 
-  const rotation = Math.sin(progress * Math.PI * 2) * PARAMS.rotationRange
+  const rotation = smoothInterpolation(
+    -PARAMS.rotationRange,
+    PARAMS.rotationRange,
+    (Math.sin(progress * Math.PI * 2) + 1) / 2,
+  )
   const isRaising = rotation < 0
 
-  const pressDownPhase = Math.max(0, Math.sin(progress * Math.PI * 2))
+  const pressDownPhase = smoothInterpolation(0, 1, (Math.sin(progress * Math.PI * 2) + 1) / 2)
   const pressDownOffset = pressDownPhase * PARAMS.pressDownStrength
   const insertionOffset = pressDownPhase * PARAMS.insertionStrength
   const insertionRotation = pressDownPhase * PARAMS.insertionAngle
@@ -637,6 +725,10 @@ function drawFrame(
     ctx.drawImage(upperImg, 0, pressDownOffset + insertionOffset, size, size)
   }
   ctx.restore()
+}
+
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
 
 const checkImageExists = async (url: string): Promise<boolean> => {
