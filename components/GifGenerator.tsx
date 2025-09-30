@@ -461,29 +461,21 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
+    // 修改: 替换内联样式为 Tailwind 类
     <div
+      className="text-center bg-white p-5 rounded-lg shadow-xl"
       style={{
-        textAlign: "center",
-        background: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        // 保持最大宽度
         maxWidth: "1100px",
-        margin: "0 auto",
       }}
     >
       {/* 状态指示器 */}
       <div
-        style={{
-          marginBottom: "20px",
-          padding: "10px",
-          background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
-          borderRadius: "4px",
-          fontSize: "14px",
-        }}
+        // 修改: 替换内联样式为 Tailwind 类
+        className={`mb-5 p-3 rounded-md text-sm ${metadataLoaded ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}
       >
         状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
-        {!gifLoaded && <span style={{ marginLeft: "10px" }}>| 🔄 GIF库加载中...</span>}
+        {!gifLoaded && <span className="ml-2">| 🔄 GIF库加载中...</span>}
       </div>
 
       {/* 模式选择 */}
@@ -679,14 +671,8 @@ function GifGeneratorContent() {
       {/* 进度条 */}
       {isGenerating && (
         <div
-          style={{
-            width: "80%",
-            margin: "10px auto",
-            height: "20px",
-            background: "#f0f0f0",
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
+          // 修改: 替换内联样式为 Tailwind 类以确保居中
+          className="w-4/5 mx-auto my-3 h-5 bg-gray-200 rounded-full overflow-hidden"
         >
           <div
             style={{
