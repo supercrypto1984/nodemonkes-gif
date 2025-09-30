@@ -1,5 +1,8 @@
 "use client"
 
+import { Button } from "./ui/button" // 确保导入 Button 组件
+import { Input } from "./ui/input"   // 确保导入 Input 组件
+
 interface BackgroundControlsProps {
   bgColor: string
   setBgColor: (color: string) => void
@@ -16,80 +19,57 @@ export default function BackgroundControls({
   setShowColorPicker,
 }: BackgroundControlsProps) {
   return (
-    <div style={{ margin: "10px 0" }}>
-      <button
-        onClick={() => updateBackground("none")}
-        style={{
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          margin: "0 5px",
-        }}
-      >
-        无背景
-      </button>
-      <button
-        onClick={() => updateBackground("auto")}
-        style={{
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          margin: "0 5px",
-        }}
-      >
-        自动背景
-      </button>
-      <button
-        onClick={() => updateBackground("custom")}
-        style={{
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          margin: "0 5px",
-        }}
-      >
-        自定义背景
-      </button>
+    <div className="mt-4 p-4 bg-gray-800 rounded-lg shadow-inner space-y-4">
+      <h3 className="text-sm font-semibold text-gray-400">背景控制</h3>
+      <div className="flex flex-wrap gap-2">
+        <Button 
+          onClick={() => updateBackground("none")}
+          variant="outline"
+          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+        >
+          无背景
+        </Button>
+        <Button
+          onClick={() => updateBackground("auto")}
+          variant="outline"
+          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+        >
+          自动背景
+        </Button>
+        <Button
+          onClick={() => updateBackground("custom")}
+          variant="outline"
+          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+        >
+          自定义颜色
+        </Button>
+      </div>
+
       {showColorPicker && (
-        <div style={{ margin: "10px 0" }}>
-          <input
+        <div className="flex items-center space-x-3 pt-2">
+          <Input
             type="color"
             value={bgColor}
             onChange={(e) => setBgColor(e.target.value)}
+            className="w-16 h-10 p-0 border-none cursor-pointer [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none"
             style={{
-              width: "100px",
-              padding: "5px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
+                backgroundColor: 'transparent',
             }}
           />
-          <button
+          <Input 
+            type="text" 
+            value={bgColor} 
+            onChange={(e) => setBgColor(e.target.value)}
+            placeholder="#RRGGBB"
+            className="w-32 bg-gray-700 border-gray-600 text-white"
+          />
+          <Button
             onClick={() => setShowColorPicker(false)}
-            style={{
-              padding: "8px 20px",
-              fontSize: "16px",
-              cursor: "pointer",
-              background: "#4CAF50",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              margin: "0 5px",
-            }}
+            variant="default"
+            className="bg-green-600 hover:bg-green-500"
           >
-            确认颜色
-          </button>
+            确认
+          </Button>
         </div>
       )}
     </div>
