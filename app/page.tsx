@@ -8,7 +8,10 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Nodemonkes GIF Generator</h1>
           <p className="text-lg text-gray-600">Create animated GIFs from your favorite Nodemonkes</p>
         </div>
-        <GifGenerator />
+        {/* 添加 flex justify-center 来居中 GifGenerator 组件 */}
+        <div className="flex justify-center">
+          <GifGenerator />
+        </div>
       </div>
     </main>
   )
