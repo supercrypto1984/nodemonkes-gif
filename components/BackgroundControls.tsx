@@ -16,37 +16,77 @@ export default function BackgroundControls({
   setShowColorPicker,
 }: BackgroundControlsProps) {
   return (
-    // 使用 flex justify-center 确保按钮组在容器内居中
-    <div className="my-3 flex justify-center flex-wrap">
+    <div style={{ margin: "10px 0" }}>
       <button
         onClick={() => updateBackground("none")}
-        className="py-2 px-5 text-base cursor-pointer bg-green-500 text-white border-none rounded-md m-1 hover:bg-green-600 transition-colors"
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
       >
         无背景
       </button>
       <button
         onClick={() => updateBackground("auto")}
-        className="py-2 px-5 text-base cursor-pointer bg-green-500 text-white border-none rounded-md m-1 hover:bg-green-600 transition-colors"
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
       >
         自动背景
       </button>
       <button
         onClick={() => updateBackground("custom")}
-        className="py-2 px-5 text-base cursor-pointer bg-green-500 text-white border-none rounded-md m-1 hover:bg-green-600 transition-colors"
+        style={{
+          padding: "8px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          background: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          margin: "0 5px",
+        }}
       >
         自定义背景
       </button>
       {showColorPicker && (
-        <div className="my-3 flex justify-center items-center w-full">
+        <div style={{ margin: "10px 0" }}>
           <input
             type="color"
             value={bgColor}
             onChange={(e) => setBgColor(e.target.value)}
-            className="w-24 p-1 border border-gray-300 rounded-md mr-3"
+            style={{
+              width: "100px",
+              padding: "5px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
           />
           <button
             onClick={() => setShowColorPicker(false)}
-            className="py-2 px-5 text-base cursor-pointer bg-green-500 text-white border-none rounded-md hover:bg-green-600 transition-colors"
+            style={{
+              padding: "8px 20px",
+              fontSize: "16px",
+              cursor: "pointer",
+              background: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              margin: "0 5px",
+            }}
           >
             确认颜色
           </button>
