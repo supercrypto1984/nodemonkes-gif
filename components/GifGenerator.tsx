@@ -461,11 +461,11 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    // 最外层容器：设置最大宽度和阴影
+    // 外层容器：设置较小的最大宽度，并保持文字居中
     <div
       className="text-center bg-white p-5 rounded-lg shadow-xl"
       style={{
-        maxWidth: "500px", // 缩小最大宽度以更好地居中
+        maxWidth: "400px",
       }}
     >
       {/* 状态指示器 */}
@@ -512,16 +512,17 @@ function GifGeneratorContent() {
         </button>
       </div>
 
-      {/* ID 输入 - 使用 flex-col items-center 居中所有堆叠的元素 */}
-      <div className="my-5 flex flex-col items-center">
-        <label htmlFor="idInput" className="text-sm font-medium text-gray-700 mb-1">输入ID或铭文号</label>
+      {/* ID 输入 - 核心居中块：w-64 mx-auto 强制块居中，内部为 text-left */}
+      <div className="my-5 mx-auto w-64 text-left">
+        <label htmlFor="idInput" className="block text-sm font-medium text-gray-700 mb-1">输入ID或铭文号</label>
         <input
           id="idInput"
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder="输入ID或铭文号"
-          className="p-2 text-base w-52 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          // w-full 确保输入框填满 w-64 容器
+          className="p-2 text-base w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
         <div className="text-xs text-gray-600 mt-1">
           推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)
@@ -531,10 +532,10 @@ function GifGeneratorContent() {
         </div>
       </div>
 
-      {/* 分辨率设置 - 使用 flex-col items-center 居中所有堆叠的元素 */}
-      <div className="my-5 flex flex-col items-center">
-        <div className="flex items-center">
-          <label htmlFor="resolutionInput" className="mr-3 text-sm font-medium text-gray-700">
+      {/* 分辨率设置 - 核心居中块：w-64 mx-auto 强制块居中，内部使用 flex justify-between */}
+      <div className="my-5 mx-auto w-64 text-left">
+        <div className="flex items-center justify-between">
+          <label htmlFor="resolutionInput" className="text-sm font-medium text-gray-700">
             分辨率 (px):
           </label>
           <input
@@ -545,7 +546,7 @@ function GifGeneratorContent() {
             min={100}
             max={1200}
             step={100}
-            className="p-2 text-base w-24 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="p-2 text-base w-20 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div className="text-xs text-gray-600 mt-1">调整生成的GIF大小 (100-1200像素)</div>
@@ -568,23 +569,26 @@ function GifGeneratorContent() {
         setShowColorPicker={setShowColorPicker}
       />
 
-      {/* 动画速度 - 使用 flex-col items-center 居中所有堆叠的元素 */}
-      <div className="my-5 flex flex-col items-center">
-        <div className="flex items-center">
-          <label htmlFor="speedInput" className="mr-3 text-sm font-medium text-gray-700">
+      {/* 动画速度 - 核心居中块：w-64 mx-auto 强制块居中，内部使用 flex justify-between */}
+      <div className="my-5 mx-auto w-64 text-left">
+        <div className="flex items-center justify-between">
+          <label htmlFor="speedInput" className="text-sm font-medium text-gray-700">
             动画速度:
           </label>
-          <input
-            id="speedInput"
-            type="range"
-            min={0.1}
-            max={5}
-            step={0.1}
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="w-52 mr-2"
-          />
-          <span className="text-sm">{speed.toFixed(1)}x</span>
+          <div className="flex items-center space-x-2 w-32">
+            <input
+              id="speedInput"
+              type="range"
+              min={0.1}
+              max={5}
+              step={0.1}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="w-full"
+              // 移除内联 style={{ width: "200px", marginRight: "10px" }}
+            />
+            <span className="text-sm w-8 text-right">{speed.toFixed(1)}x</span>
+          </div>
         </div>
         <div className="text-xs text-gray-600 mt-1">调整动画速度 (0.1x - 5x)</div>
       </div>
@@ -609,18 +613,18 @@ function GifGeneratorContent() {
         mode={mode}
       />
 
-      {/* 状态消息 */}
+      {/* 状态消息 - 保持居中 */}
       {status && (
         <div
           className={`my-3 p-3 rounded-md text-center text-sm ${
             isError ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-          }`}
+          } mx-auto w-4/5`}
         >
           {status}
         </div>
       )}
 
-      {/* 进度条 */}
+      {/* 进度条 - 保持居中 */}
       {isGenerating && (
         <div
           className="w-4/5 mx-auto my-3 h-5 bg-gray-200 rounded-full overflow-hidden"
