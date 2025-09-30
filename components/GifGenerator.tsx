@@ -461,24 +461,22 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    // 修改: 替换内联样式为 Tailwind 类
+    // 保持居中和最大宽度
     <div
       className="text-center bg-white p-5 rounded-lg shadow-xl"
       style={{
-        // 保持最大宽度
         maxWidth: "1100px",
       }}
     >
       {/* 状态指示器 */}
       <div
-        // 修改: 替换内联样式为 Tailwind 类
         className={`mb-5 p-3 rounded-md text-sm ${metadataLoaded ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}
       >
         状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
         {!gifLoaded && <span className="ml-2">| 🔄 GIF库加载中...</span>}
       </div>
 
-      {/* 模式选择 */}
+      {/* 模式选择 - 保持居中 */}
       <div style={{ marginBottom: "20px" }}>
         <button
           onClick={() => {
@@ -528,8 +526,8 @@ function GifGeneratorContent() {
         </button>
       </div>
 
-      {/* ID 输入 */}
-      <div style={{ margin: "20px 0" }}>
+      {/* ID 输入 - 添加 mx-auto 和 w-fit 来居中内容块 */}
+      <div style={{ margin: "20px 0" }} className="mx-auto w-fit">
         <input
           id="idInput"
           type="text"
@@ -553,8 +551,8 @@ function GifGeneratorContent() {
         </div>
       </div>
 
-      {/* 分辨率设置 */}
-      <div style={{ margin: "20px 0" }}>
+      {/* 分辨率设置 - 添加 mx-auto 和 w-fit 来居中内容块 */}
+      <div style={{ margin: "20px 0" }} className="mx-auto w-fit">
         <label htmlFor="resolutionInput" style={{ marginRight: "10px", fontSize: "14px" }}>
           分辨率 (px):
         </label>
@@ -578,7 +576,7 @@ function GifGeneratorContent() {
         <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整生成的GIF大小 (100-1200像素)</div>
       </div>
 
-      {/* 生成预览按钮 */}
+      {/* 生成预览按钮 - 保持居中 */}
       <button
         onClick={preview}
         style={{
@@ -595,7 +593,7 @@ function GifGeneratorContent() {
         生成预览
       </button>
 
-      {/* 背景控制 */}
+      {/* 背景控制 - BackgroundControls 内部的按钮样式需要在其组件内调整，但其容器默认会居中 */}
       <BackgroundControls
         bgColor={bgColor}
         setBgColor={setBgColor}
@@ -604,8 +602,8 @@ function GifGeneratorContent() {
         setShowColorPicker={setShowColorPicker}
       />
 
-      {/* 动画速度 */}
-      <div style={{ margin: "20px 0" }}>
+      {/* 动画速度 - 添加 mx-auto 和 w-fit 来居中内容块 */}
+      <div style={{ margin: "20px 0" }} className="mx-auto w-fit">
         <label htmlFor="speedInput" style={{ marginRight: "10px", fontSize: "14px" }}>
           动画速度:
         </label>
@@ -623,7 +621,7 @@ function GifGeneratorContent() {
         <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整动画速度 (0.1x - 5x)</div>
       </div>
 
-      {/* 保存GIF按钮 */}
+      {/* 保存GIF按钮 - 保持居中 */}
       <button
         onClick={generateGIF}
         disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
@@ -671,7 +669,6 @@ function GifGeneratorContent() {
       {/* 进度条 */}
       {isGenerating && (
         <div
-          // 修改: 替换内联样式为 Tailwind 类以确保居中
           className="w-4/5 mx-auto my-3 h-5 bg-gray-200 rounded-full overflow-hidden"
         >
           <div
