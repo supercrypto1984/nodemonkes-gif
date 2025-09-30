@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useEffect, useRef } from "react"
 
 interface PreviewProps {
@@ -97,29 +98,31 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed,
   }, [canvasRef, images, bgColor, resolution, speed, mode])
 
   return (
-    <div className="flex justify-center items-center my-8">
-      <div className="relative">
-        <div className="bg-white rounded-xl border-4 border-gray-800 overflow-hidden shadow-2xl p-6">
-          <div className="relative bg-white rounded-lg overflow-hidden" style={{ width: "600px", height: "600px" }}>
-            <canvas
-              ref={canvasRef}
-              width={resolution}
-              height={resolution}
-              className="w-full h-full object-contain"
-              style={{ imageRendering: "pixelated" }}
-            />
-            {!images.upper && !images.lower && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                  <div className="text-6xl mb-4">🎨</div>
-                  <div className="text-gray-600 text-lg font-medium">预览区域</div>
-                  <div className="text-gray-400 text-sm mt-2">输入ID并生成预览</div>
-                </div>
-              </div>
-            )}
-          </div>
+    <div
+      style={{
+        width: "600px",
+        height: "600px",
+        margin: "20px auto",
+        background: "#ffffff",
+        border: "2px dashed #ccc",
+        overflow: "hidden",
+        borderRadius: "4px",
+      }}
+    >
+      <canvas ref={canvasRef} width={resolution} height={resolution} style={{ maxWidth: "100%", height: "auto" }} />
+      {!images.upper && !images.lower && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            color: "#999",
+          }}
+        >
+          预览区域
         </div>
-      </div>
+      )}
     </div>
   )
 }
