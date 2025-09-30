@@ -4,6 +4,10 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import Preview from "./Preview"
 import BackgroundControls from "./BackgroundControls"
 import ClientWrapper from "./ClientWrapper"
+import { Button } from "./ui/button" // 导入 Button 组件
+import { Input } from "./ui/input" // 导入 Input 组件
+import { PARAMS, BODY_COLORS } from "../utils/constants" // 导入常量
+import { cn } from "../lib/utils" // 导入 cn 辅助函数
 
 // 动态导入 GIF.js 以避免 SSR 问题
 let GIF: any = null
@@ -17,77 +21,8 @@ interface Metadata {
   }
 }
 
-type BodyColorType = {
-  [key: string]: string
-} & {
-  albino: string
-  alien: string
-  beak: string
-  binary: string
-  boned: string
-  bot: string
-  brown: string
-  dark: string
-  deathbot: string
-  dos: string
-  gold: string
-  green: string
-  grey: string
-  hyena: string
-  ion: string
-  light: string
-  medium: string
-  mempool: string
-  moon: string
-  patriot: string
-  pepe: string
-  pink: string
-  purple: string
-  rainbow: string
-  red: string
-  safemode: string
-  striped: string
-  underlord: string
-  vhs: string
-  white: string
-  wrapped: string
-  zombie: string
-}
-
-const BODY_COLORS: BodyColorType = {
-  albino: "#BDADAD",
-  alien: "#04CFE7",
-  beak: "#F8AC00",
-  binary: "#010101",
-  boned: "#000000",
-  bot: "#484848",
-  brown: "#310000",
-  dark: "#482510",
-  deathbot: "#282831",
-  dos: "#0002A5",
-  gold: "#FFAA01",
-  green: "#002205",
-  grey: "#232A30",
-  hyena: "#BA8837",
-  ion: "#060F26",
-  light: "#B7844F",
-  medium: "#945321",
-  mempool: "#BE0B3A",
-  moon: "#3501BB",
-  patriot: "#0D0060",
-  pepe: "#127602",
-  pink: "#E944CE",
-  purple: "#38034A",
-  rainbow: "#009DFF",
-  red: "#630001",
-  safemode: "#000DFF",
-  striped: "#110654",
-  underlord: "#9C0901",
-  vhs: "#0600FF",
-  white: "#c7bcb6",
-  wrapped: "#FFFFFF",
-  zombie: "#104119",
-}
+// 使用从 utils/constants 导入的 BODY_COLORS 类型，并简化本地代码
+type BodyColorType = typeof BODY_COLORS
 
 const isMobile = typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 const defaultResolution = isMobile ? 400 : 600
@@ -126,6 +61,7 @@ function GifGeneratorContent() {
     // 动态加载 GIF.js
     const loadGif = async () => {
       try {
+        // 使用相对路径导入 Worker
         const module = await import("gif.js")
         GIF = module.default
         setGifLoaded(true)
@@ -410,6 +346,7 @@ function GifGeneratorContent() {
         transparent: null,
         background: bgColor,
         repeat: 0,
+        workerScript: "/gif.worker.js", // 确保 worker 路径正确
       })
 
       gif.on("progress", (p: number) => {
@@ -461,241 +398,155 @@ function GifGeneratorContent() {
   }, [images, resolution, bgColor, speed, id, mode, outputCanvasRef, gifLoaded])
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        background: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-        maxWidth: "1100px",
-        margin: "0 auto",
-      }}
-    >
-      {/* 状态指示器 */}
-      <div
-        style={{
-          marginBottom: "20px",
-          padding: "10px",
-          background: metadataLoaded ? "#e8f5e9" : "#fff3e0",
-          borderRadius: "4px",
-          fontSize: "14px",
-        }}
-      >
-        状态: {metadataLoaded ? "✅ 在线模式 - 完整功能可用" : "⚠️ 离线模式 - 基础功能可用"}
-        {!gifLoaded && <span style={{ marginLeft: "10px" }}>| 🔄 GIF库加载中...</span>}
-      </div>
+    // ⭐️ 核心 UI 布局: 双栏布局，深色主题，左侧预览，右侧控制
+    <div className="flex flex-col lg:flex-row max-w-6xl mx-auto p-4 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl">
+      
+      {/* 1. 左侧: 预览和控制 */}
+      <div className="flex flex-col items-center lg:items-start lg:w-1/2 p-4 border-r border-gray-800">
+        <h2 className="text-2xl font-semibold text-white mb-6">GIF 生成器</h2>
 
-      {/* 模式选择 */}
-      <div style={{ marginBottom: "20px" }}>
-        <button
-          onClick={() => {
-            setMode("normal")
-            if (id) {
-              const imageId = getImageId(id)
-              if (imageId) {
-                setImages(getImageUrls(imageId, "normal"))
-              }
-            }
-          }}
-          style={{
-            padding: "8px 20px",
-            fontSize: "16px",
-            cursor: "pointer",
-            background: mode === "normal" ? "#4CAF50" : "#e0e0e0",
-            color: mode === "normal" ? "white" : "black",
-            border: "none",
-            borderRadius: "4px",
-            margin: "0 5px",
-          }}
-        >
-          Normal
-        </button>
-        <button
-          onClick={() => {
-            setMode("santa")
-            if (id) {
-              const imageId = getImageId(id)
-              if (imageId) {
-                setImages(getImageUrls(imageId, "santa"))
-              }
-            }
-          }}
-          style={{
-            padding: "8px 20px",
-            fontSize: "16px",
-            cursor: "pointer",
-            background: mode === "santa" ? "#4CAF50" : "#e0e0e0",
-            color: mode === "santa" ? "white" : "black",
-            border: "none",
-            borderRadius: "4px",
-            margin: "0 5px",
-          }}
-        >
-          🎅 Santa Hat
-        </button>
-      </div>
-
-      {/* ID 输入 */}
-      <div style={{ margin: "20px 0" }}>
-        <input
-          id="idInput"
-          type="text"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-          placeholder="输入ID或铭文号"
-          style={{
-            padding: "8px",
-            fontSize: "16px",
-            width: "200px",
-            marginRight: "10px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
+        {/* 预览区域 (Canvas) */}
+        <Preview
+          canvasRef={canvasRef}
+          images={images}
+          bgColor={bgColor}
+          resolution={resolution}
+          speed={speed}
+          mode={mode}
         />
-        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
-          推荐尝试: 1, 100, 1000, 5000, 8232 (范围: 1-10000)
-        </div>
-        <div style={{ fontSize: "12px", color: "#666" }}>
-          {metadataLoaded ? "或输入铭文号查找对应的Nodemonke" : "离线模式：仅支持ID 1-10000"}
+
+        {/* 动画速度控制 */}
+        <div className="w-full max-w-[600px] mt-6 px-4">
+          <label htmlFor="speedInput" className="block text-sm font-medium text-gray-300 mb-2">
+            动画速度: <span className="text-green-400">{speed.toFixed(1)}x</span>
+          </label>
+          <input
+            id="speedInput"
+            type="range"
+            min={0.1}
+            max={5}
+            step={0.1}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg"
+          />
         </div>
       </div>
+      
+      {/* 2. 右侧: 输入和功能控制 */}
+      <div className="lg:w-1/2 p-4 space-y-6">
+        
+        {/* 模式选择 */}
+        <div className="flex space-x-3">
+          <Button
+            onClick={() => {
+              setMode("normal")
+              if (id) {
+                const imageId = getImageId(id)
+                if (imageId) {
+                  setImages(getImageUrls(imageId, "normal"))
+                }
+              }
+            }}
+            variant={mode === "normal" ? "default" : "secondary"}
+            className={cn(
+              "text-base", 
+              mode === "normal" ? "bg-green-600 hover:bg-green-500" : "bg-gray-700 hover:bg-gray-600 text-gray-200"
+            )}
+          >
+            Normal
+          </Button>
+          <Button
+            onClick={() => {
+              setMode("santa")
+              if (id) {
+                const imageId = getImageId(id)
+                if (imageId) {
+                  setImages(getImageUrls(imageId, "santa"))
+                }
+              }
+            }}
+            variant={mode === "santa" ? "default" : "secondary"}
+            className={cn(
+              "text-base",
+              mode === "santa" ? "bg-red-600 hover:bg-red-500" : "bg-gray-700 hover:bg-gray-600 text-gray-200"
+            )}
+          >
+            🎅 Santa Hat
+          </Button>
+        </div>
 
-      {/* 分辨率设置 */}
-      <div style={{ margin: "20px 0" }}>
-        <label htmlFor="resolutionInput" style={{ marginRight: "10px", fontSize: "14px" }}>
-          分辨率 (px):
-        </label>
-        <input
-          id="resolutionInput"
-          type="number"
-          value={resolution}
-          onChange={(e) => setResolution(Number(e.target.value))}
-          min={100}
-          max={1200}
-          step={100}
-          style={{
-            padding: "8px",
-            fontSize: "16px",
-            width: "100px",
-            marginRight: "10px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
+        {/* ID 输入 */}
+        <div className="space-y-2">
+          <label htmlFor="idInput" className="block text-sm font-medium text-gray-300">
+            Nodemonke ID / 铭文号
+          </label>
+          <div className="flex space-x-3">
+            <Input
+              id="idInput"
+              type="text"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              placeholder="输入 1 - 10000"
+              className="w-full bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+            />
+            <Button onClick={preview} className="bg-blue-600 hover:bg-blue-500">
+              生成预览
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500">
+            推荐尝试: 1, 100, 1000, 5000 | 离线模式：仅支持ID 1-10000
+          </p>
+        </div>
+
+        {/* 分辨率设置 */}
+        <div className="space-y-2">
+          <label htmlFor="resolutionInput" className="block text-sm font-medium text-gray-300">
+            GIF 分辨率 (px): <span className="text-yellow-400">{resolution}</span>
+          </label>
+          <input
+            id="resolutionInput"
+            type="range"
+            min={100}
+            max={1200}
+            step={100}
+            value={resolution}
+            onChange={(e) => setResolution(Number(e.target.value))}
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg"
+          />
+        </div>
+        
+        {/* 背景控制 */}
+        <BackgroundControls
+          bgColor={bgColor}
+          setBgColor={setBgColor}
+          updateBackground={updateBackground}
+          showColorPicker={showColorPicker}
+          setShowColorPicker={setShowColorPicker}
         />
-        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整生成的GIF大小 (100-1200像素)</div>
+
+        {/* 保存 GIF 按钮 */}
+        <Button
+          onClick={generateGIF}
+          disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
+          className={cn(
+            "w-full py-6 text-lg font-bold transition-all duration-300",
+            isGenerating ? "bg-yellow-600" : "bg-purple-600 hover:bg-purple-500",
+          )}
+        >
+          {isGenerating ? `生成中... ${progress}%` : "⬇️ 下载 GIF"}
+        </Button>
       </div>
 
-      {/* 生成预览按钮 */}
-      <button
-        onClick={preview}
-        style={{
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          margin: "0 5px",
-        }}
-      >
-        生成预览
-      </button>
-
-      {/* 背景控制 */}
-      <BackgroundControls
-        bgColor={bgColor}
-        setBgColor={setBgColor}
-        updateBackground={updateBackground}
-        showColorPicker={showColorPicker}
-        setShowColorPicker={setShowColorPicker}
-      />
-
-      {/* 动画速度 */}
-      <div style={{ margin: "20px 0" }}>
-        <label htmlFor="speedInput" style={{ marginRight: "10px", fontSize: "14px" }}>
-          动画速度:
-        </label>
-        <input
-          id="speedInput"
-          type="range"
-          min={0.1}
-          max={5}
-          step={0.1}
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-          style={{ width: "200px", marginRight: "10px" }}
-        />
-        <span>{speed.toFixed(1)}x</span>
-        <div style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>调整动画速度 (0.1x - 5x)</div>
-      </div>
-
-      {/* 保存GIF按钮 */}
-      <button
-        onClick={generateGIF}
-        disabled={isGenerating || !images.upper || !images.lower || !gifLoaded}
-        style={{
-          marginTop: "10px",
-          padding: "8px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-          background: "#2196F3",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          opacity: isGenerating || !images.upper || !images.lower || !gifLoaded ? 0.5 : 1,
-        }}
-      >
-        {isGenerating ? "生成中..." : "保存GIF"}
-      </button>
-
-      {/* 预览区域 */}
-      <Preview
-        canvasRef={canvasRef}
-        images={images}
-        bgColor={bgColor}
-        resolution={resolution}
-        speed={speed}
-        mode={mode}
-      />
-
-      {/* 状态消息 */}
+      {/* 3. 状态消息 */}
       {status && (
         <div
-          style={{
-            margin: "10px 0",
-            padding: "10px",
-            borderRadius: "4px",
-            textAlign: "center",
-            background: isError ? "#ffebee" : "#e8f5e9",
-            color: isError ? "#c62828" : "#2e7d32",
-          }}
+          className={cn(
+            "fixed top-4 right-4 p-3 rounded-lg font-medium shadow-xl z-50",
+            isError ? "bg-red-900 text-red-300" : "bg-green-900 text-green-300",
+          )}
         >
           {status}
-        </div>
-      )}
-
-      {/* 进度条 */}
-      {isGenerating && (
-        <div
-          style={{
-            width: "80%",
-            margin: "10px auto",
-            height: "20px",
-            background: "#f0f0f0",
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${progress}%`,
-              height: "100%",
-              background: "#4CAF50",
-              transition: "width 0.3s",
-            }}
-          />
         </div>
       )}
     </div>
@@ -710,6 +561,10 @@ export default function GifGenerator() {
   )
 }
 
+// -----------------------------------------------------------
+// 动画辅助函数 (保持不变)
+// -----------------------------------------------------------
+
 async function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -720,8 +575,8 @@ async function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
-function smoothInterpolation(start: number, end: number, t: number): number {
-  return start + (end - start) * easeInOutQuad(t)
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
 
 function drawFrame(
@@ -744,14 +599,10 @@ function drawFrame(
   ctx.fillStyle = bgColor || "#ffffff"
   ctx.fillRect(0, 0, size, size)
 
-  const rotation = smoothInterpolation(
-    -PARAMS.rotationRange,
-    PARAMS.rotationRange,
-    (Math.sin(progress * Math.PI * 2) + 1) / 2,
-  )
+  const rotation = Math.sin(progress * Math.PI * 2) * PARAMS.rotationRange
   const isRaising = rotation < 0
 
-  const pressDownPhase = smoothInterpolation(0, 1, (Math.sin(progress * Math.PI * 2) + 1) / 2)
+  const pressDownPhase = Math.max(0, Math.sin(progress * Math.PI * 2))
   const pressDownOffset = pressDownPhase * PARAMS.pressDownStrength
   const insertionOffset = pressDownPhase * PARAMS.insertionStrength
   const insertionRotation = pressDownPhase * PARAMS.insertionAngle
@@ -786,10 +637,6 @@ function drawFrame(
     ctx.drawImage(upperImg, 0, pressDownOffset + insertionOffset, size, size)
   }
   ctx.restore()
-}
-
-function easeInOutQuad(t: number): number {
-  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
 
 const checkImageExists = async (url: string): Promise<boolean> => {
