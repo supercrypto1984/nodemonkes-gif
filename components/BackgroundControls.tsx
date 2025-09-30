@@ -1,8 +1,5 @@
 "use client"
 
-import { Button } from "./ui/button" // 确保导入 Button 组件
-import { Input } from "./ui/input"   // 确保导入 Input 组件
-
 interface BackgroundControlsProps {
   bgColor: string
   setBgColor: (color: string) => void
@@ -19,57 +16,41 @@ export default function BackgroundControls({
   setShowColorPicker,
 }: BackgroundControlsProps) {
   return (
-    <div className="mt-4 p-4 bg-gray-800 rounded-lg shadow-inner space-y-4">
-      <h3 className="text-sm font-semibold text-gray-400">背景控制</h3>
-      <div className="flex flex-wrap gap-2">
-        <Button 
+    <div className="mb-8">
+      <div className="flex gap-3 justify-center flex-wrap">
+        <button
           onClick={() => updateBackground("none")}
-          variant="outline"
-          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+          className="px-6 py-2.5 bg-gray-800 text-gray-300 font-medium rounded-lg hover:bg-gray-700 transition-all duration-200 border border-gray-700 hover:border-gray-600"
         >
           无背景
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={() => updateBackground("auto")}
-          variant="outline"
-          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+          className="px-6 py-2.5 bg-gray-800 text-gray-300 font-medium rounded-lg hover:bg-gray-700 transition-all duration-200 border border-gray-700 hover:border-gray-600"
         >
           自动背景
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={() => updateBackground("custom")}
-          variant="outline"
-          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+          className="px-6 py-2.5 bg-gray-800 text-gray-300 font-medium rounded-lg hover:bg-gray-700 transition-all duration-200 border border-gray-700 hover:border-gray-600"
         >
-          自定义颜色
-        </Button>
+          自定义背景
+        </button>
       </div>
-
       {showColorPicker && (
-        <div className="flex items-center space-x-3 pt-2">
-          <Input
+        <div className="mt-4 flex justify-center items-center gap-4">
+          <input
             type="color"
             value={bgColor}
             onChange={(e) => setBgColor(e.target.value)}
-            className="w-16 h-10 p-0 border-none cursor-pointer [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none"
-            style={{
-                backgroundColor: 'transparent',
-            }}
+            className="w-16 h-16 rounded-lg cursor-pointer bg-gray-900 border-2 border-gray-700"
           />
-          <Input 
-            type="text" 
-            value={bgColor} 
-            onChange={(e) => setBgColor(e.target.value)}
-            placeholder="#RRGGBB"
-            className="w-32 bg-gray-700 border-gray-600 text-white"
-          />
-          <Button
+          <button
             onClick={() => setShowColorPicker(false)}
-            variant="default"
-            className="bg-green-600 hover:bg-green-500"
+            className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white font-medium rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-200 shadow-lg shadow-green-900/50"
           >
-            确认
-          </Button>
+            确认颜色
+          </button>
         </div>
       )}
     </div>
