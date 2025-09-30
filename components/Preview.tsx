@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useEffect, useRef } from "react"
+import { cn } from "../../lib/utils" // Import cn for Tailwind class merging
 
 interface PreviewProps {
   canvasRef: React.RefObject<HTMLCanvasElement>
@@ -13,7 +14,8 @@ interface PreviewProps {
   mode: "normal" | "santa"
 }
 
-const FRAME_COUNT = 36
+// These constants are duplicated from GifGenerator for the animation logic
+const FRAME_COUNT = 48 
 const BASE_FRAME_DELAY = 1000 / 30
 
 export default function Preview({ canvasRef, images, bgColor, resolution, speed, mode }: PreviewProps) {
@@ -22,6 +24,9 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed,
   const lowerImgRef = useRef<HTMLImageElement | null>(null)
   const progressRef = useRef(0)
   const lastTimeRef = useRef(0)
+
+  // 确保 drawFrame 函数在组件外部定义或导入
+  // 由于我们无法导入 drawFrame，我们将其定义在组件外部
 
   useEffect(() => {
     if (typeof window === "undefined" || !canvasRef.current || !images.upper || !images.lower) {
@@ -79,7 +84,7 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed,
       if (deltaTime >= frameDelay) {
         const ctx = canvasRef.current?.getContext("2d")
         if (ctx && upperImgRef.current && lowerImgRef.current) {
-          drawFrame(ctx, upperImgRef.current, lowerImgRef.current, progressRef.current, resolution, bgColor, mode)
+          drawFrame(ctx, upperImgRef.current, lowerImgRef.current, progressRef.current, resolution, bgColor)
           progressRef.current = (progressRef.current + 1 / FRAME_COUNT) % 1
           lastTimeRef.current = currentTime
         }
@@ -97,34 +102,34 @@ export default function Preview({ canvasRef, images, bgColor, resolution, speed,
     }
   }, [canvasRef, images, bgColor, resolution, speed, mode])
 
+  // ⭐️ Tailwind 样式调整：适配深色模式，使用 flex 居中
   return (
     <div
-      style={{
-        width: "600px",
-        height: "600px",
-        margin: "20px auto",
-        background: "#ffffff",
-        border: "2px dashed #ccc",
-        overflow: "hidden",
-        borderRadius: "4px",
-      }}
+      className="w-full max-w-[600px] aspect-square mx-auto mt-6 bg-gray-950 border border-gray-700 rounded-lg overflow-hidden"
     >
-      <canvas ref={canvasRef} width={resolution} height={resolution} style={{ maxWidth: "100%", height: "auto" }} />
+      <canvas 
+        ref={canvasRef} 
+        width={resolution} 
+        height={resolution} 
+        className="w-full h-full"
+      />
       {!images.upper && !images.lower && (
         <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            color: "#999",
-          }}
+          className="flex items-center justify-center w-full h-full text-gray-500"
         >
           预览区域
         </div>
       )}
     </div>
   )
+}
+
+// -----------------------------------------------------------
+// 动画辅助函数 (从 GifGenerator.tsx 复制过来以确保 Preview 独立工作)
+// -----------------------------------------------------------
+
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
 
 function drawFrame(
@@ -134,7 +139,6 @@ function drawFrame(
   progress: number,
   size: number,
   bgColor: string,
-  mode: "normal" | "santa",
 ) {
   const PARAMS = {
     rotationRange: 0.045,
@@ -148,6 +152,7 @@ function drawFrame(
   ctx.fillStyle = bgColor || "#ffffff"
   ctx.fillRect(0, 0, size, size)
 
+  // 使用 smoothInterpolation 模拟物理效果
   const rotation = Math.sin(progress * Math.PI * 2) * PARAMS.rotationRange
   const isRaising = rotation < 0
 
@@ -159,6 +164,7 @@ function drawFrame(
 
   const smoothCompression = easeInOutQuad(compressionFactor)
 
+  // 绘制底部 (Lower Body)
   ctx.save()
   const scaleY = 1 - smoothCompression
   const scaleX = 1 + smoothCompression * 0.2
@@ -169,8 +175,10 @@ function drawFrame(
   ctx.drawImage(lowerImg, 0, pressDownOffset, size, size)
   ctx.restore()
 
+  // 绘制顶部 (Upper Body)
   ctx.save()
   if (isRaising) {
+    // 上抬动作的旋转和位移
     const raisePivotX = Math.floor((size * 3) / 7)
     const pivotY = size - Math.floor((size * 2) / 9)
     ctx.translate(raisePivotX, pivotY + pressDownOffset)
@@ -178,6 +186,7 @@ function drawFrame(
     ctx.translate(-raisePivotX, -(pivotY + pressDownOffset))
     ctx.drawImage(upperImg, 0, pressDownOffset, size, size)
   } else {
+    // 插入动作的倾斜和位移
     const pivotX = Math.floor((size * 2) / 7)
     const pivotY = size - Math.floor((size * 2) / 9)
     ctx.translate(pivotX, pivotY + pressDownOffset)
@@ -186,8 +195,4 @@ function drawFrame(
     ctx.drawImage(upperImg, 0, pressDownOffset + insertionOffset, size, size)
   }
   ctx.restore()
-}
-
-function easeInOutQuad(t: number): number {
-  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
