@@ -472,6 +472,30 @@ function GifGeneratorContent() {
         margin: "0 auto",
       }}
     >
+      {/* 页面标题 */}
+      <div style={{ marginBottom: "20px", paddingTop: "10px" }}>
+        <h1
+          style={{
+            fontSize: "2.5rem",
+            fontWeight: "bold",
+            color: "#1a1a1a",
+            marginBottom: "8px",
+            lineHeight: "1.2",
+          }}
+        >
+          Nodemonkes GIF Generator
+        </h1>
+        <p
+          style={{
+            fontSize: "1.125rem",
+            color: "#666",
+            margin: "0",
+          }}
+        >
+          Create animated GIFs from your favorite Nodemonkes
+        </p>
+      </div>
+
       {/* 状态指示器 */}
       <div
         style={{
