@@ -16,7 +16,7 @@ export default function BackgroundControls({
   setShowColorPicker,
 }: BackgroundControlsProps) {
   return (
-    // 使用 Tailwind 类实现居中
+    // 使用 flex justify-center 确保按钮组在容器内居中
     <div className="my-3 flex justify-center flex-wrap">
       <button
         onClick={() => updateBackground("none")}
@@ -37,7 +37,6 @@ export default function BackgroundControls({
         自定义背景
       </button>
       {showColorPicker && (
-        // 使用 Tailwind 类实现居中
         <div className="my-3 flex justify-center items-center w-full">
           <input
             type="color"
